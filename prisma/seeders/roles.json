@@ -1,0 +1,12 @@
+[
+  {
+    "role_name": "ADMINISTRADOR",
+    "description": "Rol Administrador desde EM para Caja",
+    "status": true
+  },
+  {
+    "role_name": "CAJERO",
+    "description": "Rol de cajero regular desde EM para Caja",
+    "status": true
+  }
+]

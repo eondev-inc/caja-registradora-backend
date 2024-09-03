@@ -1,0 +1,27 @@
+[
+  {
+    "method_name": "BONO PAPEL",
+    "description": "Bono Papel",
+    "status": true
+  },
+  {
+    "method_name": "TARJETA DEBITO",
+    "description": "Tarjeta de débito",
+    "status": true
+  },
+  {
+    "method_name": "TARJETA CREDITO",
+    "description": "Tarjeta de crédito",
+    "status": true
+  },
+  {
+    "method_name": "EFECTIVO",
+    "description": "Efectivo",
+    "status": true
+  },
+  {
+    "method_name": "BONO ELECTRONICO",
+    "description": "Bono Electrónico",
+    "status": true
+  }
+]

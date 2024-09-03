@@ -1,0 +1,26 @@
+FROM node:20-alpine3.18
+
+LABEL version="0.1.1"
+# Create app directory
+WORKDIR /app
+
+COPY ["package*.json", "./"]
+COPY prisma ./prisma/
+
+# Install app dependencies
+RUN apk update && apk upgrade && apk add --no-cache bash git openssh
+#Establecer Zona horaria
+ENV TZ=America/Santiago
+RUN apk add --no-cache tzdata && \
+    cp /usr/share/zoneinfo/$TZ /etc/localtime && \
+    echo $TZ > /etc/timezone
+
+RUN npm install -g @nestjs/cli
+RUN npm install
+
+COPY . .
+
+EXPOSE 3044
+EXPOSE 9229
+
+CMD [ "npm", "run", "start:debug" ]

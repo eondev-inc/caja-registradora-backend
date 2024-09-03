@@ -1,0 +1,41 @@
+[
+  {
+    "transaction_name": "VENTA",
+    "description": "Venta",
+    "status": true
+  },
+  {
+    "transaction_name": "DEVOLUCION",
+    "description": "Devolución",
+    "status": true
+  },
+  {
+    "transaction_name": "ENTRADA_EFECTIVO",
+    "description": "Entrada de efectivo",
+    "status": true
+  },
+  {
+    "transaction_name": "SALIDA_EFECTIVO",
+    "description": "Salida de efectivo",
+    "status": true
+  },{
+    "transaction_name": "DESEMBOLSO",
+    "description": "Desembolso",
+    "status": true
+  },
+  {
+    "transaction_name": "BONO_ELECTRONICO",
+    "description": "Bono Electrónico",
+    "status": true
+  },
+  {
+    "transaction_name": "OTRO",
+    "description": "Otro",
+    "status": true
+  },
+  {
+    "transaction_name": "ANULACION",
+    "description": "Anulación",
+    "status": true
+  }
+]
