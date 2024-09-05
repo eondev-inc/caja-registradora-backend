@@ -1,18 +1,19 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { AuthUser } from '@supabase/supabase-js';
+import { AppConfig } from '@/config/app/enums/app-config.enum';
+import { AppConfigService } from '@/config/app/app-config.service';
 
 @Injectable()
 export class SupabaseStrategy extends PassportStrategy(Strategy) {
   private readonly logger = new Logger(SupabaseStrategy.name);
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(appConfigService: AppConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('SUPABASE_JWT_SECRET'),
+      secretOrKey: appConfigService.get(AppConfig.SUPABASE_JWT_SECRET),
     });
   }
 

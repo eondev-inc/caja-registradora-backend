@@ -1,6 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateUsersDto {
+  user_id?: string;
+  email?: string;
+  password?: string;
   forenames?: string;
   surnames?: string;
   nid_type?: string;

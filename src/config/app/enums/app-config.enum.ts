@@ -11,5 +11,5 @@ export enum AppConfig {
   API_JWT_EXPIRING_HOUR = 'apiJwtExpiringHour',
   SUPABASE_URL = 'supabaseUrl',
   SUPABASE_KEY = 'supabaseKey',
-  SUPABASE_JWT_SECRET = 'supabaseJwtToken',
+  SUPABASE_JWT_SECRET = 'supabaseJwtSecret',
 }

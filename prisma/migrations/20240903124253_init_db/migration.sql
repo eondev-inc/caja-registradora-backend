@@ -162,6 +162,9 @@ CREATE TABLE "transactions" (
 -- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "user_id" VARCHAR(255),
+    "email" VARCHAR(255),
+    "password" VARCHAR(255),
     "forenames" VARCHAR(255),
     "surnames" VARCHAR(255),
     "nid_type" VARCHAR(50),

@@ -18,4 +18,7 @@ export default registerAs('app', () => ({
   apiAgendaApiKey: process.env.API_AGENDA_APIKEY,
   apiInitialSettings: process.env.API_INITIAL_SETTINGS,
   apiColdData: process.env.API_EM_BACKEND,
+  supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET,
+  supabaseUrl: process.env.SUPABASE_URL,
+  supabaseKey: process.env.SUPABASE_KEY,
 }));

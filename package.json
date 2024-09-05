@@ -57,6 +57,7 @@
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.0",
     "rimraf": "^6.0.1",
+    "rut-chile": "^1.0.2",
     "rxjs": "^7.8.1",
     "uuid": "^10.0.0",
     "winston": "^3.13.1",

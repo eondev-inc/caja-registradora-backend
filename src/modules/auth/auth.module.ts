@@ -1,48 +1,33 @@
-import { forwardRef, Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { HttpModule } from '@nestjs/axios';
 import { AppConfigService } from '@/config/app/app-config.service';
 import { JwtModule } from '@nestjs/jwt';
-import { TokenService } from './token.service';
-import { PersonModule } from '../person/person.module';
 import { AppConfigModule } from '@/config/app/app-config.module';
 import { AppConfig } from '@/config/app/enums/app-config.enum';
-import { PersonService } from '../person/person.service';
-import { AuthserverService } from './authserver.service';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './strategies/jwt.startegy';
+import { SupabaseStrategy } from './strategies/supabase.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
-import AgendaService from '@/commons/services/agenda.service';
-import { ProfessionalModule } from '../professional/professional.module';
+import { forwardRef, Module } from '@nestjs/common';
+import { SupabaseModule } from '../supabase/supabase.module';
 
 @Module({
   imports: [
-    forwardRef(() => ProfessionalModule),
-    forwardRef(() => PersonModule),
     PassportModule,
+    forwardRef(() => SupabaseModule),
     JwtModule.registerAsync({
       imports: [AppConfigModule],
       inject: [AppConfigService],
       useFactory: async (AppConfigService: AppConfigService) => {
         return {
-          secret: AppConfigService.get(AppConfig.API_JWT_TOKEN),
+          secret: AppConfigService.get(AppConfig.SUPABASE_JWT_SECRET),
         };
       },
     }),
     HttpModule,
   ],
   controllers: [AuthController],
-  providers: [
-    AuthService,
-    TokenService,
-    PersonService,
-    AgendaService,
-    AuthserverService,
-    AppConfigService,
-    JwtStrategy,
-    LocalStrategy,
-  ],
-  exports: [AuthserverService, TokenService, AuthService],
+  providers: [AuthService, AppConfigService, SupabaseStrategy, LocalStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}

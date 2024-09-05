@@ -7,7 +7,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { PrismaService } from '@/prisma.service';
+import { PrismaService } from 'nestjs-prisma';
 import { NOT_EXISTS_VALIDATION_MESSAGE } from '../validation-messages';
 
 @ValidatorConstraint({ async: true })

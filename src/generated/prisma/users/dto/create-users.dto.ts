@@ -1,10 +1,13 @@
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 export class CreateUsersDto {
+  user_id: string;
+  email: string;
+  password: string;
   forenames?: string;
   surnames?: string;
   nid_type?: string;
-  nid?: string;
+  nid: string;
   branch_code?: string;
   @ApiProperty({
     type: `string`,

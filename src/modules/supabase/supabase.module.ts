@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { Supabase } from './supabase.service';
+import { AppConfigModule } from '@/config/app/app-config.module';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [AppConfigModule],
   providers: [Supabase],
   exports: [Supabase],
 })

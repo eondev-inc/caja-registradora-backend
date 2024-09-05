@@ -11,5 +11,5 @@ export interface AppConfig {
   apiJwtExpiringHour: number;
   supabaseUrl: string;
   supabaseKey: string;
-  supabaseJwtToken: string;
+  supabaseJwtSecret: string;
 }
