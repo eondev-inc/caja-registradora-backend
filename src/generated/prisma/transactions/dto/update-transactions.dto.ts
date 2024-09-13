@@ -10,10 +10,6 @@ export class UpdateTransactionsDto {
   description?: string;
   reference_number?: string;
   @ApiProperty({
-    default: true,
-  })
-  status?: boolean;
-  @ApiProperty({
     type: `string`,
     format: `date-time`,
     default: `now`,

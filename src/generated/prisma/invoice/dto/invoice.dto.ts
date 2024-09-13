@@ -1,15 +1,10 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, invoice_status_enum } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class InvoiceDto {
   id: string;
-  customer_uuid: string | null;
+  custumer_nid: string | null;
   invoice_number: string | null;
-  @ApiProperty({
-    type: `string`,
-    format: `date-time`,
-  })
-  invoice_date: Date | null;
   @ApiProperty({
     type: `number`,
     format: `double`,
@@ -21,8 +16,11 @@ export class InvoiceDto {
   })
   tax_amount: Prisma.Decimal | null;
   notes: string | null;
-  status: boolean | null;
-  payment_status: string | null;
+  @ApiProperty({
+    enum: invoice_status_enum,
+  })
+  status: invoice_status_enum;
+  payment_status_id: string | null;
   @ApiProperty({
     type: `string`,
     format: `date-time`,
@@ -33,14 +31,4 @@ export class InvoiceDto {
     format: `date-time`,
   })
   updated_at: Date | null;
-  @ApiProperty({
-    type: `number`,
-    format: `double`,
-  })
-  amount_in: Prisma.Decimal | null;
-  @ApiProperty({
-    type: `number`,
-    format: `double`,
-  })
-  amount_out: Prisma.Decimal | null;
 }

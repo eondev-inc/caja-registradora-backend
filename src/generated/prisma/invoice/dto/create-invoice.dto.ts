@@ -2,13 +2,8 @@ import { Prisma } from '@prisma/client';
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 export class CreateInvoiceDto {
-  customer_uuid?: string;
+  custumer_nid?: string;
   invoice_number?: string;
-  @ApiProperty({
-    type: `string`,
-    format: `date-time`,
-  })
-  invoice_date?: Date;
   @ApiProperty({
     type: `number`,
     format: `double`,
@@ -20,11 +15,7 @@ export class CreateInvoiceDto {
   })
   tax_amount?: Prisma.Decimal;
   notes?: string;
-  @ApiProperty({
-    default: true,
-  })
-  status?: boolean;
-  payment_status?: string;
+  payment_status_id?: string;
   @ApiProperty({
     type: `string`,
     format: `date-time`,
@@ -37,14 +28,4 @@ export class CreateInvoiceDto {
     default: `now`,
   })
   updated_at?: Date;
-  @ApiProperty({
-    type: `number`,
-    format: `double`,
-  })
-  amount_in?: Prisma.Decimal;
-  @ApiProperty({
-    type: `number`,
-    format: `double`,
-  })
-  amount_out?: Prisma.Decimal;
 }

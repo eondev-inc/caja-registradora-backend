@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, transaction_status_enum } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class TransactionsDto {
@@ -10,7 +10,10 @@ export class TransactionsDto {
   amount: Prisma.Decimal;
   description: string | null;
   reference_number: string | null;
-  status: boolean | null;
+  @ApiProperty({
+    enum: transaction_status_enum,
+  })
+  status: transaction_status_enum;
   @ApiProperty({
     type: `string`,
     format: `date-time`,

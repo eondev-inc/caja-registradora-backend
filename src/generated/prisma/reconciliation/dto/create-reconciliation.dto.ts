@@ -3,11 +3,6 @@ import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 export class CreateReconciliationDto {
   @ApiProperty({
-    type: `string`,
-    format: `date-time`,
-  })
-  date?: Date;
-  @ApiProperty({
     type: `number`,
     format: `double`,
   })
@@ -22,7 +17,7 @@ export class CreateReconciliationDto {
     format: `double`,
   })
   expected_balance?: Prisma.Decimal;
-  sales_summary?: string;
+  sales_summary: Prisma.InputJsonValue;
   @ApiProperty({
     type: `number`,
     format: `double`,
@@ -44,10 +39,6 @@ export class CreateReconciliationDto {
   })
   discrepancy?: Prisma.Decimal;
   notes?: string;
-  @ApiProperty({
-    default: true,
-  })
-  status?: boolean;
   @ApiProperty({
     type: `string`,
     format: `date-time`,

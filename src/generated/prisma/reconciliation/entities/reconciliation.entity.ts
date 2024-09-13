@@ -1,15 +1,10 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, reconciliation_status_enum } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { OpenRegister } from '../../openRegister/entities/openRegister.entity';
 
 export class Reconciliation {
   id: string;
   open_register_id: string;
-  @ApiProperty({
-    type: `string`,
-    format: `date-time`,
-  })
-  date: Date | null;
   @ApiProperty({
     type: `number`,
     format: `double`,
@@ -25,7 +20,7 @@ export class Reconciliation {
     format: `double`,
   })
   expected_balance: Prisma.Decimal | null;
-  sales_summary: string | null;
+  sales_summary: Prisma.JsonValue;
   @ApiProperty({
     type: `number`,
     format: `double`,
@@ -47,7 +42,10 @@ export class Reconciliation {
   })
   discrepancy: Prisma.Decimal | null;
   notes: string | null;
-  status: boolean | null;
+  @ApiProperty({
+    enum: reconciliation_status_enum,
+  })
+  status: reconciliation_status_enum;
   @ApiProperty({
     type: `string`,
     format: `date-time`,

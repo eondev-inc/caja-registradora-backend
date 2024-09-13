@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, register_status_enum } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class OpenRegisterDto {
@@ -18,7 +18,10 @@ export class OpenRegisterDto {
     format: `double`,
   })
   initial_cash: Prisma.Decimal | null;
-  status: boolean | null;
+  @ApiProperty({
+    enum: register_status_enum,
+  })
+  status: register_status_enum;
   @ApiProperty({
     type: `string`,
     format: `date-time`,

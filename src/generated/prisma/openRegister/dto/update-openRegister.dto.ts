@@ -18,10 +18,6 @@ export class UpdateOpenRegisterDto {
   })
   initial_cash?: Prisma.Decimal;
   @ApiProperty({
-    default: true,
-  })
-  status?: boolean;
-  @ApiProperty({
     type: `string`,
     format: `date-time`,
     default: `now`,

@@ -50,7 +50,6 @@
     "luxon": "^3.4.4",
     "nest-winston": "^1.9.7",
     "nestjs-prisma": "^0.23.0",
-    "newrelic": "^11.23.2",
     "node-fetch": "^3.3.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

@@ -11,13 +11,19 @@ export class Supabase {
   constructor(private readonly appConfigService: AppConfigService) {}
 
   getClient() {
-    this.logger.log('getting supabase client...');
+    this.logger.log('getting supabase client...', Supabase.name);
     if (this.clientInstance) {
-      this.logger.log('client exists - returning for current Scope.REQUEST');
+      this.logger.log(
+        'client exists - returning for current Scope.REQUEST',
+        Supabase.name,
+      );
       return this.clientInstance;
     }
 
-    this.logger.log('initialising new supabase client for new Scope.REQUEST');
+    this.logger.log(
+      'initialising new supabase client for new Scope.REQUEST',
+      Supabase.name,
+    );
 
     this.clientInstance = createClient(
       this.appConfigService.get(AppConfig.SUPABASE_URL),

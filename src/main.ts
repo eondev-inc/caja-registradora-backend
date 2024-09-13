@@ -12,7 +12,6 @@ import { Settings } from 'luxon';
 import { AppConfigService } from './config/app/app-config.service';
 import { LoggingConfigService } from './config/logging/logging-config.service';
 import { LoggingInterceptor } from './commons/interceptors/loggin.interceptor';
-import { NewrelicInterceptor } from './commons/interceptors/newrelic.interceptor';
 import { AppConfig } from './config/app/enums/app-config.enum';
 import { APP_URL_PREFIX } from './commons/constants/constants';
 import {
@@ -40,10 +39,7 @@ async function bootstrap() {
   //await prismaService.enableShutdownHooks(app);
 
   //Set use global Interceptor
-  app.useGlobalInterceptors(
-    new LoggingInterceptor(logger),
-    new NewrelicInterceptor(logger),
-  );
+  app.useGlobalInterceptors(new LoggingInterceptor(logger));
 
   //Set use global Filters
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));

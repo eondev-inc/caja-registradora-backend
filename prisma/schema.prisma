@@ -1,24 +1,19 @@
 generator client {
-  provider = "prisma-client-js"
-}
-
-datasource db {
-  provider          = "postgresql"
-  url               = env("DATABASE_URL")
-  directUrl         = env("DIRECT_URL")
-}
-
-generator nestjsDto {
   provider                        = "prisma-generator-nestjs-dto"
   output                          = "../src/generated/prisma"
   outputToNestJsResourceStructure = "true"
-  reExport                        = "false"
-  exportRelationModifierClasses   = "false"
   updateDtoPrefix                 = "Update"
   createDtoPrefix                 = "Create"
   dtoSuffix                       = "Dto"
+  reExport                        = "false"
+  exportRelationModifierClasses   = "false"
 }
 
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
 
 model cash_register {
   id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
@@ -42,21 +37,29 @@ model cashiers {
 }
 
 model invoice {
-  id             String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  customer_uuid  String?         @db.Uuid
-  invoice_number String?         @db.VarChar(50)
-  invoice_date   DateTime?       @db.Date
-  total_amount   Decimal?        @db.Decimal(10, 2)
-  tax_amount     Decimal?        @db.Decimal(10, 2)
-  notes          String?
-  status         Boolean?        @default(true)
-  payment_status String?         @db.VarChar(50)
-  created_at     DateTime?       @default(now()) @db.Timestamp(6)
-  updated_at     DateTime?       @default(now()) @db.Timestamp(6)
-  amount_in      Decimal?        @db.Decimal(10, 2)
-  amount_out     Decimal?        @db.Decimal(10, 2)
-  invoice_items  invoice_items[]
-  transactions   transactions[]
+  id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  custumer_nid      String?             @db.VarChar(50)
+  invoice_number    String?             @db.VarChar(50)
+  total_amount      Decimal?            @db.Decimal(10, 2)
+  tax_amount        Decimal?            @db.Decimal(10, 2)
+  notes             String?
+  status            invoice_status_enum @default(EMITIDO)
+  payment_status_id String?             @db.Uuid
+  created_at        DateTime?           @default(now()) @db.Timestamp(6)
+  updated_at        DateTime?           @default(now()) @db.Timestamp(6)
+  invoice_items     invoice_items[]
+  transactions      transactions[]
+}
+
+model payment_status {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  status_name String?   @db.VarChar(255)
+  description String?
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @db.Timestamp(6)
+  status      Boolean?  @default(true)
+
+  @@index([id], map: "idx_payment_status_id")
 }
 
 model invoice_items {
@@ -79,19 +82,19 @@ model invoice_items {
 }
 
 model open_register {
-  id               String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  shift_init       DateTime?        @db.Timestamp(6)
-  shift_end        DateTime?        @db.Timestamp(6)
-  initial_cash     Decimal?         @db.Decimal(10, 2)
-  status           Boolean?         @default(true)
-  created_at       DateTime?        @default(now()) @db.Timestamp(6)
-  updated_at       DateTime?        @default(now()) @db.Timestamp(6)
-  created_by       String?          @db.Uuid
-  cash_register_id String?          @db.Uuid
-  cashiers_id      String?          @db.Uuid
-  cash_register    cash_register?   @relation(fields: [cash_register_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cash_register")
-  cashiers         cashiers?        @relation(fields: [cashiers_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cashiers")
-  users            users?           @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_created_by")
+  id               String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  shift_init       DateTime?            @db.Timestamp(6)
+  shift_end        DateTime?            @db.Timestamp(6)
+  initial_cash     Decimal?             @db.Decimal(10, 2)
+  status           register_status_enum @default(ABIERTO)
+  created_at       DateTime?            @default(now()) @db.Timestamp(6)
+  updated_at       DateTime?            @default(now()) @db.Timestamp(6)
+  created_by       String?              @db.Uuid
+  cash_register_id String?              @db.Uuid
+  cashiers_id      String?              @db.Uuid
+  cash_register    cash_register?       @relation(fields: [cash_register_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cash_register")
+  cashiers         cashiers?            @relation(fields: [cashiers_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cashiers")
+  users            users?               @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_created_by")
   reconciliation   reconciliation[]
   transactions     transactions[]
 
@@ -121,23 +124,22 @@ model previsions {
 }
 
 model reconciliation {
-  id               String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  open_register_id String        @db.Uuid
-  date             DateTime?     @db.Date
-  opening_balance  Decimal?      @db.Decimal(10, 2)
-  closing_balance  Decimal?      @db.Decimal(10, 2)
-  expected_balance Decimal?      @db.Decimal(10, 2)
-  sales_summary    String?
-  total_sales      Decimal?      @db.Decimal(10, 2)
-  cash_deposits    Decimal?      @db.Decimal(10, 2)
-  cash_withdrawals Decimal?      @db.Decimal(10, 2)
-  discrepancy      Decimal?      @db.Decimal(10, 2)
+  id               String                     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  open_register_id String                     @db.Uuid
+  opening_balance  Decimal?                   @db.Decimal(10, 2)
+  closing_balance  Decimal?                   @db.Decimal(10, 2)
+  expected_balance Decimal?                   @db.Decimal(10, 2)
+  sales_summary    Json
+  total_sales      Decimal?                   @db.Decimal(10, 2)
+  cash_deposits    Decimal?                   @db.Decimal(10, 2)
+  cash_withdrawals Decimal?                   @db.Decimal(10, 2)
+  discrepancy      Decimal?                   @db.Decimal(10, 2)
   notes            String?
-  status           Boolean?      @default(true)
-  created_at       DateTime?     @default(now()) @db.Timestamp(6)
-  updated_at       DateTime?     @default(now()) @db.Timestamp(6)
-  approved_by      String?       @db.Uuid
-  open_register    open_register @relation(fields: [open_register_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_open_register")
+  status           reconciliation_status_enum @default(PENDIENTE)
+  created_at       DateTime?                  @default(now()) @db.Timestamp(6)
+  updated_at       DateTime?                  @default(now()) @db.Timestamp(6)
+  approved_by      String?                    @db.Uuid
+  open_register    open_register              @relation(fields: [open_register_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_open_register")
 
   @@index([open_register_id], map: "idx_reconciliation_open_register_id")
 }
@@ -163,21 +165,21 @@ model transaction_type {
 }
 
 model transactions {
-  id                  String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  open_register_id    String           @db.Uuid
-  invoice_id          String           @db.Uuid
-  transaction_type_id String           @db.Uuid
-  payment_method_id   String           @db.Uuid
-  amount              Decimal          @db.Decimal(10, 2)
+  id                  String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  open_register_id    String                  @db.Uuid
+  invoice_id          String                  @db.Uuid
+  transaction_type_id String                  @db.Uuid
+  payment_method_id   String                  @db.Uuid
+  amount              Decimal                 @db.Decimal(10, 2)
   description         String?
-  reference_number    String?          @db.VarChar(255)
-  status              Boolean?         @default(true)
-  created_at          DateTime?        @default(now()) @db.Timestamp(6)
-  updated_at          DateTime?        @default(now()) @db.Timestamp(6)
-  invoice             invoice          @relation(fields: [invoice_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invoice")
-  open_register       open_register    @relation(fields: [open_register_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_open_register")
-  payment_method      payment_method   @relation(fields: [payment_method_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_payment_method")
-  transaction_type    transaction_type @relation(fields: [transaction_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_transaction_type")
+  reference_number    String?                 @db.VarChar(255)
+  status              transaction_status_enum @default(COMPLETADO)
+  created_at          DateTime?               @default(now()) @db.Timestamp(6)
+  updated_at          DateTime?               @default(now()) @db.Timestamp(6)
+  invoice             invoice                 @relation(fields: [invoice_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invoice")
+  open_register       open_register           @relation(fields: [open_register_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_open_register")
+  payment_method      payment_method          @relation(fields: [payment_method_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_payment_method")
+  transaction_type    transaction_type        @relation(fields: [transaction_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_transaction_type")
 
   @@index([invoice_id], map: "idx_transactions_invoice_id")
   @@index([open_register_id], map: "idx_transactions_open_register_id")
@@ -187,7 +189,7 @@ model transactions {
 
 model users {
   id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id       String?         @db.Uuid
+  user_id       String?         @db.VarChar(255)
   email         String?         @db.VarChar(255)
   password      String?         @db.VarChar(255)
   forenames     String?         @db.VarChar(255)
@@ -217,4 +219,36 @@ model users_tokens {
   users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
 
   @@index([user_id], map: "idx_users_tokens_user_id")
+}
+
+enum cashier_status_enum {
+  ACTIVO
+  INACTIVO
+  SUSPENDIDO
+}
+
+enum invoice_status_enum {
+  EMITIDO
+  ANULADO
+  PAGADO
+  DEVUELTO
+}
+
+enum reconciliation_status_enum {
+  PENDIENTE
+  CUADRADO
+  NO_CUADRADO @map("NO CUADRADO")
+  RECHAZADO
+}
+
+enum register_status_enum {
+  ABIERTO
+  CERRADO
+  SUSPENDIDO
+}
+
+enum transaction_status_enum {
+  COMPLETADO
+  PENDIENTE
+  CANCELADO
 }

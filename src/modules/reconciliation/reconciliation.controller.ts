@@ -1,0 +1,52 @@
+import { SupabaseGuard } from '@/commons/guards/supabase.guard';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { ReconciliationService } from './reconciliation.service';
+import { Users } from '@/generated/prisma/users/entities/users.entity';
+import { CreateReconciliationDto } from '../../generated/prisma/reconciliation/dto/create-reconciliation.dto';
+
+@ApiBearerAuth()
+@UseGuards(SupabaseGuard)
+@Controller('reconciliation')
+export class ReconciliationController {
+  constructor(private readonly reconciliationService: ReconciliationService) {}
+
+  @Post('calculate')
+  async generateReconciliation(@Req() req) {
+    const user = req.user as Users;
+    return await this.reconciliationService.generatePreReconciliation(user.id);
+  }
+
+  @Post('create')
+  async createReconciliation(
+    @Body() createReconcelation: CreateReconciliationDto,
+    @Req() req,
+  ) {
+    const user = req.user as Users;
+    return await this.reconciliationService.createReconciliation(
+      user.id,
+      createReconcelation,
+    );
+  }
+
+  @Get('list-by-user')
+  async listReconciliationsByUser(@Req() req) {
+    const user = req.user as Users;
+    return await this.reconciliationService.listReconciliationsByUser(user.id);
+  }
+
+  @Get('list-by-center/:code')
+  async listReconciliationsByCenter(@Param('code') branchCode: string) {
+    return await this.reconciliationService.listReconciliationsByCenter(
+      branchCode,
+    );
+  }
+}

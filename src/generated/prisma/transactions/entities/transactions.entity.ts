@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, transaction_status_enum } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { Invoice } from '../../invoice/entities/invoice.entity';
 import { OpenRegister } from '../../openRegister/entities/openRegister.entity';
@@ -18,7 +18,10 @@ export class Transactions {
   amount: Prisma.Decimal;
   description: string | null;
   reference_number: string | null;
-  status: boolean | null;
+  @ApiProperty({
+    enum: transaction_status_enum,
+  })
+  status: transaction_status_enum;
   @ApiProperty({
     type: `string`,
     format: `date-time`,

@@ -8,9 +8,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppConfig } from '@/config/app/enums/app-config.enum';
 import { SupabaseModule } from '@/modules/supabase/supabase.module';
 import { PassportModule } from '@nestjs/passport';
-import { APP_GUARD } from '@nestjs/core';
-import { SupabaseGuard } from '@/commons/guards/supabase.guard';
 import { AuthModule } from './modules/auth/auth.module';
+import { OpenRegisterModule } from './modules/open-register/open-register.module';
+import { TransactionsModule } from './modules/transactions/transactions.module';
+import { ReconciliationModule } from './modules/reconciliation/reconciliation.module';
 
 @Module({
   imports: [
@@ -35,6 +36,9 @@ import { AuthModule } from './modules/auth/auth.module';
       },
       inject: [ConfigService],
     }),
+    OpenRegisterModule,
+    TransactionsModule,
+    ReconciliationModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],

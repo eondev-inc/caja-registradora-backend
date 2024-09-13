@@ -1,3 +1,18 @@
+-- CreateEnum
+CREATE TYPE "cashier_status_enum" AS ENUM ('ACTIVO', 'INACTIVO', 'SUSPENDIDO');
+
+-- CreateEnum
+CREATE TYPE "invoice_status_enum" AS ENUM ('EMITIDO', 'ANULADO', 'PAGADO', 'DEVUELTO');
+
+-- CreateEnum
+CREATE TYPE "reconciliation_status_enum" AS ENUM ('PENDIENTE', 'CUADRADO', 'NO CUADRADO', 'RECHAZADO');
+
+-- CreateEnum
+CREATE TYPE "register_status_enum" AS ENUM ('ABIERTO', 'CERRADO', 'SUSPENDIDO');
+
+-- CreateEnum
+CREATE TYPE "transaction_status_enum" AS ENUM ('COMPLETADO', 'PENDIENTE', 'CANCELADO');
+
 -- CreateTable
 CREATE TABLE "cash_register" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
@@ -23,20 +38,29 @@ CREATE TABLE "cashiers" (
 -- CreateTable
 CREATE TABLE "invoice" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "customer_uuid" UUID,
+    "custumer_nid" VARCHAR(50),
     "invoice_number" VARCHAR(50),
-    "invoice_date" DATE,
     "total_amount" DECIMAL(10,2),
     "tax_amount" DECIMAL(10,2),
     "notes" TEXT,
-    "status" BOOLEAN DEFAULT true,
-    "payment_status" VARCHAR(50),
+    "status" "invoice_status_enum" NOT NULL DEFAULT 'EMITIDO',
+    "payment_status_id" UUID,
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
-    "amount_in" DECIMAL(10,2),
-    "amount_out" DECIMAL(10,2),
 
     CONSTRAINT "invoice_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "payment_status" (
+    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "status_name" VARCHAR(255),
+    "description" TEXT,
+    "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
+    "status" BOOLEAN DEFAULT true,
+
+    CONSTRAINT "payment_status_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -62,10 +86,10 @@ CREATE TABLE "open_register" (
     "shift_init" TIMESTAMP(6),
     "shift_end" TIMESTAMP(6),
     "initial_cash" DECIMAL(10,2),
-    "status" BOOLEAN DEFAULT true,
+    "status" "register_status_enum" NOT NULL DEFAULT 'ABIERTO',
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
-    "created_by" UUID,
+    "created_by" UUID,  
     "cash_register_id" UUID,
     "cashiers_id" UUID,
 
@@ -100,17 +124,16 @@ CREATE TABLE "previsions" (
 CREATE TABLE "reconciliation" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "open_register_id" UUID NOT NULL,
-    "date" DATE,
     "opening_balance" DECIMAL(10,2),
     "closing_balance" DECIMAL(10,2),
     "expected_balance" DECIMAL(10,2),
-    "sales_summary" TEXT,
+    "sales_summary" JSONB NOT NULL,
     "total_sales" DECIMAL(10,2),
     "cash_deposits" DECIMAL(10,2),
     "cash_withdrawals" DECIMAL(10,2),
     "discrepancy" DECIMAL(10,2),
     "notes" TEXT,
-    "status" BOOLEAN DEFAULT true,
+    "status" "reconciliation_status_enum" NOT NULL DEFAULT 'PENDIENTE',
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
     "approved_by" UUID,
@@ -152,7 +175,7 @@ CREATE TABLE "transactions" (
     "amount" DECIMAL(10,2) NOT NULL,
     "description" TEXT,
     "reference_number" VARCHAR(255),
-    "status" BOOLEAN DEFAULT true,
+    "status" "transaction_status_enum" NOT NULL DEFAULT 'COMPLETADO',
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
 
@@ -228,6 +251,9 @@ CREATE INDEX "idx_users_role_id" ON "users"("role_id");
 
 -- CreateIndex
 CREATE INDEX "idx_users_tokens_user_id" ON "users_tokens"("user_id");
+
+-- CreateIndex
+CREATE INDEX "idx_payment_status_id" ON "payment_status"("id");
 
 -- AddForeignKey
 ALTER TABLE "cashiers" ADD CONSTRAINT "fk_user" FOREIGN KEY ("user_id") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION;
