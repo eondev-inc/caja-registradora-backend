@@ -22,10 +22,14 @@ import { AllExceptionsFilter } from './commons/filters/allExceptions.filter';
 import { PrismaService } from 'nestjs-prisma';
 
 async function bootstrap() {
+  const fastifyAdapter = new FastifyAdapter({
+    logger: false,
+    bodyLimit: 1048576,
+  });
   // const app = await NestFactory.create(AppModule)
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ logger: false }),
+    fastifyAdapter,
   );
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const { httpAdapter } = app.get(HttpAdapterHost);

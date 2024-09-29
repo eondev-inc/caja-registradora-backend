@@ -1,27 +1,38 @@
 FROM node:20-alpine3.18
 
 LABEL version="0.1.1"
-# Create app directory
-WORKDIR /app
 
-COPY ["package*.json", "./"]
-COPY prisma ./prisma/
-
-# Install app dependencies
+# Instalar dependencias necesarias
 RUN apk update && apk upgrade && apk add --no-cache bash git openssh
-#Establecer Zona horaria
+
+# Establecer Zona horaria
 ENV TZ=America/Santiago
 RUN apk add --no-cache tzdata && \
     cp /usr/share/zoneinfo/$TZ /etc/localtime && \
     echo $TZ > /etc/timezone
 
+# Crear usuario y grupo no-root
+RUN addgroup nestjs && adduser -S -G nestjs nestjs
+
+# Instalar dependencias globales
 RUN npm install -g @nestjs/cli
 RUN npm install -g pnpm
+
+# Establecer directorio de trabajo
+WORKDIR /app
+
+# Copiar package.json y pnpm-lock.yaml antes de instalar dependencias
+COPY package.json pnpm-lock.yaml ./
+
+# Instalar dependencias de la app
 RUN pnpm install
 
+# Copiar el resto del código al contenedor
 COPY . .
 
-EXPOSE 3044
+# Exponer puertos
+EXPOSE 3001
 EXPOSE 9229
 
-CMD [ "npm", "run", "start:debug" ]
+# Comando por defecto
+CMD ["pnpm", "start:debug"]

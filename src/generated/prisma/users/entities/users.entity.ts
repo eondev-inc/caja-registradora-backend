@@ -6,7 +6,7 @@ import { UsersTokens } from '../../usersTokens/entities/usersTokens.entity';
 
 export class Users {
   id: string;
-  user_id: string | null;
+  user_id: string;
   email: string | null;
   password: string | null;
   forenames: string | null;

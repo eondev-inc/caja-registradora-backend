@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthenticationDto } from './dtos/authentication.dto';
 import { Public } from '@/commons/decorators/public.decorator';
-import { CreateUsersDto } from '@/generated/prisma/users/dto/create-users.dto';
+import { CreateUserDto } from './dtos/create-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,7 +16,7 @@ export class AuthController {
 
   @Public()
   @Post('register')
-  registerUser(@Body() createuser: CreateUsersDto) {
+  registerUser(@Body() createuser: CreateUserDto) {
     return this.authService.registerUser(createuser);
   }
 }

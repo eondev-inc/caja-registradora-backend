@@ -6,7 +6,6 @@ import { HttpModule } from '@nestjs/axios';
 import { PrismaModule } from 'nestjs-prisma';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppConfig } from '@/config/app/enums/app-config.enum';
-import { SupabaseModule } from '@/modules/supabase/supabase.module';
 import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from './modules/auth/auth.module';
 import { OpenRegisterModule } from './modules/open-register/open-register.module';
@@ -22,7 +21,6 @@ import { ReconciliationModule } from './modules/reconciliation/reconciliation.mo
     AppConfigModule,
     HttpModule,
     PassportModule,
-    SupabaseModule,
     PrismaModule.forRootAsync({
       isGlobal: true,
       useFactory: async (configService: ConfigService) => {

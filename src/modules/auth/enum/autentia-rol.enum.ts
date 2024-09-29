@@ -1,4 +1,4 @@
 export enum RolesAutentia {
-  ADMIN = 'EM-ADMIN-RL',
-  ASISTENTE = 'AG-CALLCENTER',
+  ADMIN = 'ADMINISTRADOR',
+  ASISTENTE = 'CAJERO',
 }

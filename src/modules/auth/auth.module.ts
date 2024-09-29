@@ -2,32 +2,33 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { HttpModule } from '@nestjs/axios';
 import { AppConfigService } from '@/config/app/app-config.service';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { AppConfigModule } from '@/config/app/app-config.module';
 import { AppConfig } from '@/config/app/enums/app-config.enum';
 import { PassportModule } from '@nestjs/passport';
 import { SupabaseStrategy } from './strategies/supabase.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
-import { forwardRef, Module } from '@nestjs/common';
-import { SupabaseModule } from '../supabase/supabase.module';
+import { Module } from '@nestjs/common';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
     PassportModule,
-    forwardRef(() => SupabaseModule),
     JwtModule.registerAsync({
       imports: [AppConfigModule],
       inject: [AppConfigService],
-      useFactory: async (AppConfigService: AppConfigService) => {
+      useFactory: async (appConfigService: AppConfigService) => {
+        const secret = appConfigService.get(AppConfig.API_JWT_TOKEN);
         return {
-          secret: AppConfigService.get(AppConfig.SUPABASE_JWT_SECRET),
+          secret,
+          signOptions: { expiresIn: '4h' },
         };
       },
     }),
     HttpModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, AppConfigService, SupabaseStrategy, LocalStrategy],
+  providers: [AuthService, AppConfigService, JwtStrategy, LocalStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

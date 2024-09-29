@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UsersDto {
   id: string;
-  user_id: string | null;
+  user_id: string;
   email: string | null;
   password: string | null;
   forenames: string | null;

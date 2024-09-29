@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  em-caja-digital-backend:
+  caja-digital-backend:
     image: em-caja-digital-backend:dev
     env_file:
       - .env
@@ -12,7 +12,7 @@ services:
     volumes:
       - ./:/app/
       - emcajadigitalback:/app/node_modules
-    command: "npm run start:debug"
+    command: 'npm run start:debug'
     networks:
       - work
     ports:
@@ -20,7 +20,7 @@ services:
       - 9229:9229
     depends_on:
       - pgsql-example
-  
+
   pgsql-example:
     image: postgres:14.0-alpine
     container_name: pgsql-example
@@ -31,9 +31,9 @@ services:
     volumes:
       - data:/var/lib/postgresql/data
     environment:
-      POSTGRES_USER: "cash_admin"
-      POSTGRES_PASSWORD: "4639802"
-      POSTGRES_DB: "caja2"
+      POSTGRES_USER: 'cash_admin'
+      POSTGRES_PASSWORD: '4639802'
+      POSTGRES_DB: 'caja2'
 
 networks:
   work:

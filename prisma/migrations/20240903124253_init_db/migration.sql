@@ -1,3 +1,4 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- CreateEnum
 CREATE TYPE "cashier_status_enum" AS ENUM ('ACTIVO', 'INACTIVO', 'SUSPENDIDO');
 
@@ -185,7 +186,7 @@ CREATE TABLE "transactions" (
 -- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "user_id" VARCHAR(255),
+    "user_id" UUID NOT NULL,
     "email" VARCHAR(255),
     "password" VARCHAR(255),
     "forenames" VARCHAR(255),

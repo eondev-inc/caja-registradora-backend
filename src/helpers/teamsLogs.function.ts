@@ -162,11 +162,10 @@ function typeOfMessage(data, isInfo, shortError, environment, origin) {
     summary: `${isInfo ? 'INFO Log' : 'ERROR Log'} en Ambiente [_${environment}_]`,
     sections: [
       {
-        // eslint-disable-next-line max-len
         activityTitle: `[_${environment.toUpperCase()}_] ${
           isInfo ? 'INFO Log' : 'ERROR Log'
         } - Proyecto *${origin.toUpperCase()}* - Version ${version}`,
-        // eslint-disable-next-line max-len
+
         activitySubtitle: `Fecha: ${DateTime.now().setZone('America/Santiago').toFormat('dd-MM-yyyy')} \n Hora: ${DateTime.now()
           .setZone('America/Santiago')
           .toFormat('HH:mm:ss:ms')}`,
@@ -219,14 +218,14 @@ const toTeams = async (data, shortError = false) => {
   return fetch(urlCall, fetchOptions)
     .then((res) => {
       if (res.status !== 200) throw res;
-      // eslint-disable-next-line no-console
+
       const message = `Successfully send message in channel ${isInfo ? 'INFO Log' : 'ERROR Log'} Teams`;
       console.log(message);
       return { status: true, message };
     })
     .catch((err) => {
       const showError = JSON.stringify(err.statusText || err.message);
-      // eslint-disable-next-line no-console
+
       const message = `error en envío de información a Teams: ${isInfo ? 'INFO Log' : 'ERROR Log'}`;
       console.error(message, showError);
       console.error('data a Enviar', JSON.stringify(fetchOptions));

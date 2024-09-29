@@ -1,7 +1,7 @@
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 export class CreateUsersDto {
-  user_id?: string;
+  user_id: string;
   email?: string;
   password?: string;
   forenames?: string;
