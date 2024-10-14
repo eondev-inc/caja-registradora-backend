@@ -2,11 +2,13 @@ import { Catch, ArgumentsHost, HttpException } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import { BaseExceptionFilter } from '@nestjs/core';
 import { Error } from './payload-http-exception.interface';
+import { LoggingConfigService } from '@/config/logging/logging-config.service';
 
 @Catch()
 export class AllExceptionsFilter extends BaseExceptionFilter {
+  private readonly logger = LoggingConfigService.getInstance().getLogger();
   catch(exception: Error, host: ArgumentsHost): any {
-    console.log('exception :>> ', exception);
+    this.logger.error('exception :>> ', exception);
 
     const httpContext = host.switchToHttp();
     const res = httpContext.getResponse<FastifyReply>();
@@ -41,9 +43,8 @@ export class AllExceptionsFilter extends BaseExceptionFilter {
         message: message || '',
         type: type || 'InternalError',
         code: status || 500,
-        trace_id: trace_id || Math.random().toString(16).substr(2, 16),
+        trace_id: trace_id || Math.random().toString(16).substring(2, 16),
         response: response || [],
-        status: null,
       },
     };
   }

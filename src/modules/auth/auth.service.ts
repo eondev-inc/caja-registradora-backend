@@ -1,6 +1,7 @@
 import {
   ConflictException,
   HttpException,
+  HttpStatus,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -12,20 +13,34 @@ import { compare, genSalt, hash } from 'bcrypt';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { LoggingConfigService } from '@/config/logging/logging-config.service';
-//import uuid
 import { v4 as uuidv4 } from 'uuid';
 
+/**
+ * Servicio de autenticación para manejar la lógica de autenticación y registro de usuarios.
+ */
 @Injectable()
 export class AuthService {
   private readonly logger = LoggingConfigService.getInstance().getLogger();
 
+  /**
+   * Constructor del servicio de autenticación.
+   * @param jwtServivice - Servicio JWT para manejar tokens.
+   * @param prismaService - Servicio Prisma para interactuar con la base de datos.
+   */
   constructor(
     private readonly jwtServivice: JwtService,
     private readonly prismaService: PrismaService,
   ) {}
 
+  /**
+   * Autentica un usuario con su email y contraseña.
+   * @param email - Email del usuario.
+   * @param password - Contraseña del usuario.
+   * @returns Un objeto con la información del usuario autenticado.
+   * @throws UnauthorizedException - Si las credenciales son incorrectas.
+   */
   async authenticateUser({ email, password }: AuthenticationDto) {
-    //Autenticar usuario con email y password
+    // Autenticar usuario con email y password
     const user = await this.prismaService.users.findFirst({
       where: {
         email,
@@ -33,84 +48,68 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new UnauthorizedException('Usuario no encontrado');
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
 
     const isPasswordValid = await compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Usuario o contrasea incorrecta');
+      throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    const accessToken = this.jwtServivice.sign({
-      sub: user.id,
-      email: user.email,
-    });
-    //Create the register in user_tokens table for the user
-    await this.prismaService.users_tokens.create({
-      data: {
-        user_id: user.id,
-        token: accessToken,
-      },
-    });
-
+    const payload = { email: user.email, sub: user.user_id };
     return {
-      access_token: accessToken,
+      access_token: this.jwtServivice.sign(payload),
     };
   }
 
-  async registerUser(createuser: CreateUserDto) {
-    try {
-      this.logger.log({ createuser });
-      //formatear el rut chileno del usuario
-      const rut = RUT.validate(createuser.nid)
-        ? RUT.deformat(createuser.nid)
-        : null;
-      if (!rut) {
-        throw new ConflictException('Rut inválido');
-      }
-      this.logger.log({ rut });
-      const existingUser = await this.prismaService.users.findFirst({
-        where: {
-          nid: rut,
-        },
-      });
-      this.logger.log({ existingUser });
-      if (existingUser) {
-        throw new ConflictException('Usuario ya existe');
-      }
-      // voy a crear un usuario en la base de datos de la aplicación una
-      const salt = await genSalt(10);
-      this.logger.log({ salt });
-      const hashedPassword = await hash(createuser.password, salt);
-      this.logger.log({ hashedPassword });
-      const uuid = uuidv4();
+  /**
+   * Registra un nuevo usuario en el sistema.
+   * @param createUserDto - DTO con la información del usuario a crear.
+   * @returns El usuario creado.
+   * @throws ConflictException - Si el email ya está registrado.
+   */
+  async registerUser(createUserDto: CreateUserDto) {
+    const { email, password, nid, nidType, forenames, surnames } = createUserDto;
 
-      const { id } = await this.prismaService.roles.findFirst({
-        where: {
-          role_name: RolesAutentia.ASISTENTE,
-        },
-      });
-      this.logger.log({ id });
+    const existingUser = await this.prismaService.users.findFirst({
+      where: { email },
+    });
 
-      return this.prismaService.users.create({
-        data: {
-          nid: rut,
-          nid_type: createuser.nidType.toUpperCase(),
-          password: hashedPassword,
-          email: createuser.email,
-          forenames: createuser.forenames,
-          surnames: createuser.surnames,
-          user_id: uuid,
-          roles: {
-            connect: {
-              id,
-            },
+    if (existingUser) {
+      throw new ConflictException('El email ya está registrado');
+    }
+
+    const hashedPassword = await hash(password, await genSalt(10));
+    const formattedNid = RUT.validate(nid) ? RUT.format(nid) : null;
+
+    const { id } = await this.prismaService.roles.findFirst({
+      where: {
+        role_name: RolesAutentia.ASISTENTE,
+      },
+    });
+
+    const user = await this.prismaService.users.create({
+      data: {
+        email,
+        password: hashedPassword,
+        nid: formattedNid,
+        nid_type: nidType.toUpperCase(),
+        forenames,
+        surnames,
+        user_id: uuidv4(),
+        roles: {
+          connect: {
+            id,
           },
         },
-      });
-    } catch (error) {
-      this.logger.error('error', error);
-      return new HttpException(error, 500);
+      },
+    });
+
+    if(!user) {
+      this.logger.error('Error al crear el usuario', user);
+      throw new HttpException('Error al crear el usuario', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    return user;
   }
 }
