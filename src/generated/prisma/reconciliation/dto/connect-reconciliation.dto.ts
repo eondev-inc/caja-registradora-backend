@@ -1,3 +1,5 @@
-export class ConnectReconciliationDto {
-  id: string;
-}
+
+  export class ConnectReconciliationDto {
+    id: string;
+  }
+  

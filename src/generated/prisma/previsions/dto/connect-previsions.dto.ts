@@ -1,3 +1,5 @@
-export class ConnectPrevisionsDto {
-  id: string;
-}
+
+  export class ConnectPrevisionsDto {
+    id: string;
+  }
+  

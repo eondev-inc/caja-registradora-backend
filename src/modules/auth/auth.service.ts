@@ -69,7 +69,8 @@ export class AuthService {
    * @throws ConflictException - Si el email ya está registrado.
    */
   async registerUser(createUserDto: CreateUserDto) {
-    const { email, password, nid, nidType, forenames, surnames } = createUserDto;
+    const { email, password, nid, nidType, forenames, surnames } =
+      createUserDto;
 
     const existingUser = await this.prismaService.users.findFirst({
       where: { email },
@@ -105,9 +106,12 @@ export class AuthService {
       },
     });
 
-    if(!user) {
+    if (!user) {
       this.logger.error('Error al crear el usuario', user);
-      throw new HttpException('Error al crear el usuario', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'Error al crear el usuario',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     return user;

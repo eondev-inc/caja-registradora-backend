@@ -1,3 +1,5 @@
-export class ConnectCashRegisterDto {
-  id: string;
-}
+
+  export class ConnectCashRegisterDto {
+    id: string;
+  }
+  

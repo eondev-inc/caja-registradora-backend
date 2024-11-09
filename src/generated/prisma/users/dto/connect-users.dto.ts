@@ -1,3 +1,5 @@
-export class ConnectUsersDto {
-  id: string;
-}
+
+  export class ConnectUsersDto {
+    id: string;
+  }
+  

@@ -1,35 +1,39 @@
-import { Prisma } from '@prisma/client';
-import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
+
+import {Prisma} from '@prisma/client'
+import {ApiProperty,getSchemaPath} from '@nestjs/swagger'
+
+
+
 
 export class CreateInvoiceItemsDto {
   description?: string;
-  specialty_code?: string;
-  professional_uuid?: string;
-  @ApiProperty({
-    type: `integer`,
-    format: `int32`,
-  })
-  quantity?: number;
-  @ApiProperty({
-    type: `number`,
-    format: `double`,
-  })
-  total_price?: Prisma.Decimal;
-  @ApiProperty({
-    type: `number`,
-    format: `double`,
-  })
-  discount_amount?: Prisma.Decimal;
-  @ApiProperty({
-    type: `string`,
-    format: `date-time`,
-    default: `now`,
-  })
-  created_at?: Date;
-  @ApiProperty({
-    type: `string`,
-    format: `date-time`,
-    default: `now`,
-  })
-  updated_at?: Date;
+specialty_code?: string;
+professional_uuid?: string;
+@ApiProperty({
+  type: `integer`,
+  format: `int32`,
+})
+quantity?: number;
+@ApiProperty({
+  type: `number`,
+  format: `double`,
+})
+total_price?: Prisma.Decimal;
+@ApiProperty({
+  type: `number`,
+  format: `double`,
+})
+discount_amount?: Prisma.Decimal;
+@ApiProperty({
+  type: `string`,
+  format: `date-time`,
+  default: `now`,
+})
+created_at?: Date;
+@ApiProperty({
+  type: `string`,
+  format: `date-time`,
+  default: `now`,
+})
+updated_at?: Date;
 }
