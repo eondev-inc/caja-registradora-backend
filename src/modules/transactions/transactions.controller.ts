@@ -8,7 +8,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionsDto } from './dtos/create.transactions.dto';
 import { SupabaseGuard } from '@/commons/guards/supabase.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
@@ -26,11 +25,6 @@ export class TransactionsController {
       createTransactionDto,
     );
   }
-
-  // @Patch('update')
-  // async updateTransaction(@Body() updateTransactionDto: UpdateTransactionDto) {
-  //   return this.transactionsService.updateTransaction(updateTransactionDto);
-  // }
 
   @Get('list-by-user')
   async listTransactionsByUser(@Req() req) {

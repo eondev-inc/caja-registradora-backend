@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
+import { Injectable, Logger, Scope } from '@nestjs/common';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { AppConfig } from '@/config/app/enums/app-config.enum';
 import { AppConfigService } from '@/config/app/app-config.service';

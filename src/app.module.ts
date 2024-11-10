@@ -11,6 +11,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { OpenRegisterModule } from './modules/open-register/open-register.module';
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { ReconciliationModule } from './modules/reconciliation/reconciliation.module';
+import { GeneralSettingsModule } from './modules/general-settings/general-settings.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { ReconciliationModule } from './modules/reconciliation/reconciliation.mo
     OpenRegisterModule,
     TransactionsModule,
     ReconciliationModule,
+    GeneralSettingsModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],

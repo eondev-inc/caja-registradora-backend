@@ -1,11 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsEmail, IsString } from 'class-validator';
 
 export class AuthenticationDto {
   @ApiProperty({
     description: 'Token de acceso desde em-authserver',
-    type: 'email',
+    type: 'string',
   })
+  @IsEmail()
   @IsString()
   email: string;
 

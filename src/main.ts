@@ -19,7 +19,6 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { HttpExceptionFilter } from './commons/filters/http-exception.filter.';
-import { PrismaService } from 'nestjs-prisma';
 
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter({
@@ -85,8 +84,8 @@ async function bootstrap() {
   if (String(process.env.NODE_ENV).toLowerCase() === 'qa') {
     //Swagger UI for documentation
     const swaggerConfig = new DocumentBuilder()
-      .setTitle('Em Agenda Backend API')
-      .setDescription('Agenda v2 Backend')
+      .setTitle('Caja Registradora')
+      .setDescription('Caja Registradora v1')
       .setVersion('2.0')
       .addBearerAuth()
       .build();
@@ -111,12 +110,6 @@ async function bootstrap() {
     });
   }
 
-  //Define Log level PrismaService
-  // log query events
-  const prismaService: PrismaService = app.get(PrismaService);
-  prismaService.$on('query', (event) => {
-    logger.debug(`Recent query took ${event.duration} ms `);
-  });
   //Define PORT
   const port = appConfig.get(AppConfig.PORT) || 3300;
   const address = appConfig.get(AppConfig.FASTIFY_ADDRESS) || '0.0.0.0';
