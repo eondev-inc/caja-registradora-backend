@@ -1,5 +1,3 @@
-
-  export class ConnectInvoiceItemsDto {
-    id: string;
-  }
-  
+export class ConnectInvoiceItemsDto {
+  id: string;
+}

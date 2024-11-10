@@ -13,6 +13,9 @@ export class LoggingConfigService {
 
   private static _instance: LoggingConfigService;
 
+  /**
+   * Private constructor to initialize logging transports and options.
+   */
   private constructor() {
     this.transports = {
       console: new winston.transports.Console({
@@ -58,6 +61,10 @@ export class LoggingConfigService {
     }
   }
 
+  /**
+   * Returns the singleton instance of LoggingConfigService.
+   * @returns {LoggingConfigService} The singleton instance.
+   */
   public static getInstance(): LoggingConfigService {
     if (!this._instance) {
       this._instance = new LoggingConfigService();
@@ -65,6 +72,10 @@ export class LoggingConfigService {
     return this._instance;
   }
 
+  /**
+   * Returns the logger instance.
+   * @returns {LoggerService} The logger instance.
+   */
   getLogger(): LoggerService {
     return WinstonModule.createLogger(this._logger);
   }

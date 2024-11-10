@@ -1,5 +1,3 @@
-
-  export class ConnectCashiersDto {
-    id: string;
-  }
-  
+export class ConnectCashiersDto {
+  id: string;
+}

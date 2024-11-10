@@ -1,25 +1,21 @@
-
-import {ApiProperty,getSchemaPath} from '@nestjs/swagger'
-
-
-
+import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 export class CreateCashRegisterDto {
   branch_code?: string;
-@ApiProperty({
-  type: `string`,
-  format: `date-time`,
-  default: `now`,
-})
-created_at?: Date;
-@ApiProperty({
-  type: `string`,
-  format: `date-time`,
-  default: `now`,
-})
-updated_at?: Date;
-@ApiProperty({
-  default: true,
-})
-status?: boolean;
+  @ApiProperty({
+    type: `string`,
+    format: `date-time`,
+    default: `now`,
+  })
+  created_at?: Date;
+  @ApiProperty({
+    type: `string`,
+    format: `date-time`,
+    default: `now`,
+  })
+  updated_at?: Date;
+  @ApiProperty({
+    default: true,
+  })
+  status?: boolean;
 }

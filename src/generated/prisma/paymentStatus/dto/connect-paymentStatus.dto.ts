@@ -1,5 +1,3 @@
-
-  export class ConnectPaymentStatusDto {
-    id: string;
-  }
-  
+export class ConnectPaymentStatusDto {
+  id: string;
+}

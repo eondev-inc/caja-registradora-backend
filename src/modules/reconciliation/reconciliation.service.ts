@@ -1,4 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateReconciliationDto } from '../../generated/prisma/reconciliation/dto/create-reconciliation.dto';
 import {
@@ -84,10 +90,17 @@ export class ReconciliationService {
     };
   }
 
+  /**
+   * Creates a reconciliation for a user y an open register.
+   * @param userId - The ID of the user.
+   * @param createReconciliation - The reconciliation data.
+   * @returns The created reconciliation.
+   */
   async createReconciliation(
     userId: string,
     createReconciliation: CreateReconciliationDto,
   ) {
+    console.log({ userId, createReconciliation });
     const user = await this.prismaService.users.findUnique({
       where: {
         id: userId,
@@ -107,6 +120,10 @@ export class ReconciliationService {
       },
     });
 
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
     const reconciliation = await this.prismaService.reconciliation.create({
       data: {
         opening_balance: createReconciliation.opening_balance,
@@ -124,6 +141,9 @@ export class ReconciliationService {
       },
     });
 
+    if (!reconciliation) {
+      throw new BadRequestException('Error creating reconciliation');
+    }
     return reconciliation;
   }
 
@@ -143,5 +163,55 @@ export class ReconciliationService {
    */
   async listReconciliationsByCenter(branchCode: string) {
     return branchCode;
+  }
+
+  /**
+   * Approves a reconciliation previously created.
+   * @param reconciliationId - The ID of the reconciliation to approve.
+   * @returns The approved reconciliation.
+   */
+  async approveReconciliation(reconciliationId: string) {
+    try {
+      const reconciliation = await this.prismaService.reconciliation.update({
+        where: {
+          id: reconciliationId,
+          status: reconciliation_status_enum.PENDIENTE,
+        },
+        data: {
+          status: reconciliation_status_enum.CUADRADO,
+        },
+      });
+
+      // Close the register
+      await this.prismaService.open_register.update({
+        where: {
+          id: reconciliation.open_register_id,
+        },
+        data: {
+          status: register_status_enum.CERRADO,
+        },
+      });
+      return reconciliation;
+    } catch (error) {
+      throw new HttpException(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  /**
+   * Rejects a reconciliation previously approved.
+   * @param reconciliationId - The ID of the reconciliation to reject.
+   * @returns The rejected reconciliation.
+   */
+  async rejectReconciliation(reconciliationId: string) {
+    const reconciliation = await this.prismaService.reconciliation.update({
+      where: {
+        id: reconciliationId,
+      },
+      data: {
+        status: reconciliation_status_enum.RECHAZADO,
+      },
+    });
+
+    return reconciliation;
   }
 }

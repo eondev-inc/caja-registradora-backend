@@ -1,5 +1,3 @@
-
-  export class ConnectOpenRegisterDto {
-    id: string;
-  }
-  
+export class ConnectOpenRegisterDto {
+  id: string;
+}

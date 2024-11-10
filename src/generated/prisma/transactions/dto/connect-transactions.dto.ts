@@ -1,5 +1,3 @@
-
-  export class ConnectTransactionsDto {
-    id: string;
-  }
-  
+export class ConnectTransactionsDto {
+  id: string;
+}

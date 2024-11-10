@@ -46,16 +46,16 @@ export class AuthService {
         email,
       },
     });
-
+    // Si el usuario no existe, lanzar UnauthorizedException
     if (!user) {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
-
+    // Si el usuario existe, comparar la contraseña
     const isPasswordValid = await compare(password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
-
+    // Si la contraseña es válida, generar un token JWT con el email y el id del usuario
     const payload = { email: user.email, sub: user.user_id };
     return {
       access_token: this.jwtServivice.sign(payload),
@@ -72,12 +72,16 @@ export class AuthService {
     const { email, password, nid, nidType, forenames, surnames } =
       createUserDto;
 
-    const existingUser = await this.prismaService.users.findFirst({
+    const existingUserEmail = await this.prismaService.users.findFirst({
       where: { email },
     });
 
-    if (existingUser) {
-      throw new ConflictException('El email ya está registrado');
+    const existingUserNid = await this.prismaService.users.findFirst({
+      where: { nid },
+    });
+    // Si el email o el RUT ya están registrados, lanzar ConflictException
+    if (existingUserEmail || existingUserNid) {
+      throw new ConflictException('El usuario ya está registrado');
     }
 
     const hashedPassword = await hash(password, await genSalt(10));
@@ -88,7 +92,7 @@ export class AuthService {
         role_name: RolesAutentia.ASISTENTE,
       },
     });
-
+    // Crear el usuario con la información proporcionada
     const user = await this.prismaService.users.create({
       data: {
         email,

@@ -15,6 +15,7 @@ export class TransactionsService {
    * @returns The created transaction.
    */
   async createTransaction(
+    userId: string,
     createTransactionDto: CreateTransactionsDto,
   ): Promise<Transactions> {
     // The first thing to do is create an invoice with invoice_items and then create a transaction
@@ -27,12 +28,24 @@ export class TransactionsService {
       },
     });
 
+    console.log('Invoice created', { createTransactionDto });
+
+    // Get the open register of the user
+    const openRegister = await this.prismaService.open_register.findFirst({
+      where: {
+        cashiers: {
+          user_id: userId,
+        },
+        status: register_status_enum.ABIERTO,
+      },
+    });
+
     //Then Create the transaction
     return await this.prismaService.transactions.create({
       data: {
         amount: createTransactionDto.amount,
         invoice_id: invoice.id,
-        open_register_id: createTransactionDto.open_register_id,
+        open_register_id: openRegister.id,
         transaction_type_id: createTransactionDto.transaction_type_id,
         payment_method_id: createTransactionDto.payment_method_id,
         description:
@@ -61,6 +74,38 @@ export class TransactionsService {
     return await this.prismaService.transactions.findMany({
       where: {
         open_register_id: openRegister.id,
+      },
+      select: {
+        id: true,
+        amount: true,
+        description: true,
+        created_at: true,
+        payment_method: {
+          select: {
+            description: true,
+          },
+        },
+        transaction_type: {
+          select: {
+            description: true,
+          },
+        },
+        invoice: {
+          select: {
+            id: true,
+            status: true,
+            total_amount: true,
+            invoice_items: {
+              select: {
+                id: true,
+                quantity: true,
+                total_price: true,
+                specialty_code: true,
+                professional_uuid: true,
+              },
+            },
+          },
+        },
       },
     });
   }

@@ -18,7 +18,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { AllExceptionsFilter } from './commons/filters/allExceptions.filter';
+import { HttpExceptionFilter } from './commons/filters/http-exception.filter.';
 import { PrismaService } from 'nestjs-prisma';
 
 async function bootstrap() {
@@ -46,7 +46,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new LoggingInterceptor(logger));
 
   //Set use global Filters
-  app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
+  app.useGlobalFilters(new HttpExceptionFilter(httpAdapter));
 
   //Allow class-validator to inject dependencies
   useContainer(app.select(AppModule), { fallbackOnErrors: true });

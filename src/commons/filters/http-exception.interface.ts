@@ -1,9 +1,9 @@
 export interface HttpError {
-  detail?: string;
-  message: string;
-  type: string;
-  code: any;
-  trace_id?: string;
-  response?: any;
-  status?: any;
+  statusCode: number;
+  timestamp: string;
+  method: string;
+  path: any;
+  message?: string;
+  error?: any;
+  trace_id: string;
 }

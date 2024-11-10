@@ -3,8 +3,8 @@ import {
   Controller,
   Get,
   Param,
-  Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
@@ -19,8 +19,10 @@ export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post('create')
-  async createTransaction(@Body() createTransactionDto) {
+  async createTransaction(@Req() req, @Body() createTransactionDto) {
+    const user = req.user;
     return await this.transactionsService.createTransaction(
+      user.sub,
       createTransactionDto,
     );
   }
@@ -30,9 +32,10 @@ export class TransactionsController {
   //   return this.transactionsService.updateTransaction(updateTransactionDto);
   // }
 
-  @Get('list-by-user/:id')
-  async listTransactionsByUser(@Param('id') userId: string) {
-    return this.transactionsService.listTransactionsByUser(userId);
+  @Get('list-by-user')
+  async listTransactionsByUser(@Req() req) {
+    const user = req.user;
+    return this.transactionsService.listTransactionsByUser(user.sub);
   }
 
   @Get('list-by-center/:code')

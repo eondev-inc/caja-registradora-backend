@@ -17,7 +17,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AuthUser } from '@supabase/supabase-js';
 
 /**
  * Controller for handling open register related operations.
@@ -38,6 +37,7 @@ export class OpenRegisterController {
   @ApiOperation({ summary: 'Get open register by ID' })
   @ApiResponse({ status: 200, description: 'The open register details.' })
   @ApiResponse({ status: 404, description: 'Open register not found.' })
+  @ApiResponse({ status: 400, description: 'Failed to get open register.' })
   @Get(':id')
   async getOpenRegister(@Param('id') id: string) {
     return this.openRegisterService.getOpenRegister(id);
