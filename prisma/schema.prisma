@@ -257,4 +257,5 @@ enum transaction_status_enum {
   COMPLETADO
   PENDIENTE
   CANCELADO
+  DEVUELTO
 }

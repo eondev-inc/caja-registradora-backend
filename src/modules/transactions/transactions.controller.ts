@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -35,5 +37,15 @@ export class TransactionsController {
   @Get('list-by-center/:code')
   async listTransactionsByCenter(@Param('code') branchCode: string) {
     return this.transactionsService.listTransactionsByCenter(branchCode);
+  }
+
+  @Patch('cancel/:id')
+  async deleteTransaction(@Param('id') id: string) {
+    return this.transactionsService.cancelTransaction(id);
+  }
+
+  @Patch('devolution/:id')
+  async devolutionTransaction(@Param('id') id: string) {
+    return this.transactionsService.devolutionTransaction(id);
   }
 }

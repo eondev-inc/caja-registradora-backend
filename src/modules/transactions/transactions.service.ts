@@ -2,7 +2,7 @@ import { Transactions } from '@/generated/prisma/transactions/entities/transacti
 import { CreateTransactionsDto } from './dtos/create.transactions.dto';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { register_status_enum } from '@prisma/client';
+import { register_status_enum, transaction_status_enum } from '@prisma/client';
 
 @Injectable()
 export class TransactionsService {
@@ -74,12 +74,18 @@ export class TransactionsService {
     return await this.prismaService.transactions.findMany({
       where: {
         open_register_id: openRegister.id,
+        status: {
+          in: [
+            transaction_status_enum.COMPLETADO,
+            transaction_status_enum.CANCELADO,
+          ],
+        },
       },
       select: {
         id: true,
         amount: true,
         description: true,
-        created_at: true,
+        status: true,
         payment_method: {
           select: {
             description: true,
@@ -133,6 +139,53 @@ export class TransactionsService {
         open_register_id: {
           in: openRegister.map((register) => register.id),
         },
+      },
+    });
+  }
+
+  /**
+   * Cancels a transaction given its ID.
+   * @param id - The ID of the transaction to cancel.
+   * @returns Transaction with the status CANCELADO.
+   */
+  async cancelTransaction(id: string) {
+    return await this.prismaService.transactions.update({
+      where: {
+        id,
+      },
+      data: {
+        status: transaction_status_enum.CANCELADO,
+      },
+    });
+  }
+
+  /**
+   * Devolves a transaction given its ID.
+   * @param id - The ID of the transaction to devolve.
+   * @returns A new transaction with the same invoice but with a negative amount.
+   */
+  async devolutionTransaction(id: string) {
+    // Update the original transaction status to DEVUELTO
+    const originalTransaction = await this.prismaService.transactions.update({
+      where: { id },
+      data: { status: transaction_status_enum.DEVUELTO },
+    });
+
+    const transactionDevolutionType =
+      await this.prismaService.transaction_type.findFirst({
+        where: { transaction_name: 'DEVOLUCION' },
+      });
+
+    // Create a new transaction with the same invoice but with a negative amount
+    return await this.prismaService.transactions.create({
+      data: {
+        amount: -originalTransaction.amount,
+        invoice_id: originalTransaction.invoice_id,
+        open_register_id: originalTransaction.open_register_id,
+        transaction_type_id: transactionDevolutionType.id,
+        payment_method_id: originalTransaction.payment_method_id,
+        description: `Devolución de la transacción ${originalTransaction.id}`,
+        status: transaction_status_enum.COMPLETADO,
       },
     });
   }
