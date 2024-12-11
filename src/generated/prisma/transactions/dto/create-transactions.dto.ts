@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { ApiProperty, getSchemaPath } from '@nestjs/swagger';
 
 export class CreateTransactionsDto {
+  original_transaction_id?: string;
   @ApiProperty({
     type: `number`,
     format: `double`,

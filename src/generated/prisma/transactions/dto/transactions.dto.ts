@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class TransactionsDto {
   id: string;
+  original_transaction_id: string | null;
   @ApiProperty({
     type: `number`,
     format: `double`,

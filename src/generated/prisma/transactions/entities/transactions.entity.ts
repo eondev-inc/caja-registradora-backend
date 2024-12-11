@@ -11,6 +11,7 @@ export class Transactions {
   invoice_id: string;
   transaction_type_id: string;
   payment_method_id: string;
+  original_transaction_id: string | null;
   @ApiProperty({
     type: `number`,
     format: `double`,
