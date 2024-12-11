@@ -7,6 +7,7 @@
   "license": "MIT v3.0",
   "scripts": {
     "build": "nest build",
+    "prepare": "husky install",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -90,7 +91,9 @@
     "ts-loader": "^9.4.3",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.0.0"
   },
   "jest": {
     "testTimeout": 20000,
@@ -116,5 +119,15 @@
   "prisma": {
     "schema": "./prisma/schema.prisma",
     "seed": "ts-node prisma/seed.ts"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint eslint \"{src,apps,libs,test}/**/*.ts\" --fix"
+    ]
   }
 }
