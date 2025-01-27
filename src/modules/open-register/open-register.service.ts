@@ -4,8 +4,8 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { CreateOpenRegisterDto } from '@/generated/prisma/openRegister/dto/create-openRegister.dto';
-import { OpenRegister } from '@/generated/prisma/openRegister/entities/openRegister.entity';
+import { CreateOpenRegisterDto } from './dtos/create-open-register.dto';
+import { open_register as OpenRegister } from '@prisma/client'; 
 import { register_status_enum } from '@prisma/client';
 
 @Injectable()
@@ -105,7 +105,7 @@ export class OpenRegisterService {
       //Create a new open_register record
       return await this.prismaService.open_register.create({
         data: {
-          initial_cash: createOpenRegister.initial_cash,
+          initial_cash: createOpenRegister.initial_amount,
           shift_init: new Date().toISOString(),
           users: { connect: { id: user.id } },
           cash_register: { connect: { id: cashRegister.id } },

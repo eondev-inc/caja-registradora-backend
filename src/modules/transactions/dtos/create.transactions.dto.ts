@@ -1,14 +1,33 @@
-import { CreateInvoiceDto } from '@/generated/prisma/invoice/dto/create-invoice.dto';
-import { CreateInvoiceItemsDto } from '@/generated/prisma/invoiceItems/dto/create-invoiceItems.dto';
-import { CreateTransactionsDto as TransactionsDto } from '@/generated/prisma/transactions/dto/create-transactions.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { CreateInvoiceItemDto } from './create-invoice-items.dto';
+import { CreateInvoiceDto } from './create-invoice.dto';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreateTransactionsDto extends TransactionsDto {
+export class CreateTransactionsDto {
   @ApiProperty({
     description: 'ID of the open register associated with the transaction',
     example: '12345',
   })
   open_register_id: string;
+
+  @ApiProperty({
+    description: 'Amount of the transaction',
+    example: 1000,
+  })
+  @IsNumber({
+    allowInfinity: false,
+    allowNaN: false,
+    maxDecimalPlaces: 0,
+  })
+  amount: number;
+
+  @ApiProperty({
+    description: 'Description of the transaction',
+    example: 'Payment for services',
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
 
   @ApiProperty({
     description: 'ID of the transaction type',
@@ -30,7 +49,7 @@ export class CreateTransactionsDto extends TransactionsDto {
 
   @ApiProperty({
     description: 'List of invoice items associated with the transaction',
-    type: [CreateInvoiceItemsDto],
+    type: [CreateInvoiceItemDto],
   })
-  invoice_items: CreateInvoiceItemsDto[];
+  invoice_items: CreateInvoiceItemDto[];
 }

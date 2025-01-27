@@ -4,8 +4,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import { AuthUser } from '@supabase/supabase-js';
 import { AppConfig } from '@/config/app/enums/app-config.enum';
 import { AppConfigService } from '@/config/app/app-config.service';
-import { Users } from '@/generated/prisma/users/entities/users.entity';
 import { PrismaService } from 'nestjs-prisma';
+import { users } from '@prisma/client';
 
 @Injectable()
 export class SupabaseStrategy extends PassportStrategy(Strategy) {
@@ -23,7 +23,7 @@ export class SupabaseStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(user: AuthUser) {
-    const users: Users = await this.prismaService.users.findFirst({
+    const users: users = await this.prismaService.users.findFirst({
       where: { user_id: user.id },
     });
     return users;

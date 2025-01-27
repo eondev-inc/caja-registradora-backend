@@ -3,8 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable, Logger } from '@nestjs/common';
 import { AppConfig } from '@/config/app/enums/app-config.enum';
 import { AppConfigService } from '@/config/app/app-config.service';
-import { Users } from '@/generated/prisma/users/entities/users.entity';
 import { PrismaService } from 'nestjs-prisma';
+import { users } from '@prisma/client';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(user: Users) {
+  async validate(user: users) {
     this.logger.debug(`Validating user ${user}`);
     return await this.prismaService.users.findFirst({
       where: { id: user.id },

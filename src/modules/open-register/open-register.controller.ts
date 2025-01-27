@@ -9,8 +9,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { OpenRegisterService } from './open-register.service';
-import { Users } from '@/generated/prisma/users/entities/users.entity';
-import { CreateOpenRegisterDto } from '@/generated/prisma/openRegister/dto/create-openRegister.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -18,6 +16,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthUser } from '@supabase/supabase-js';
+import { users } from '@prisma/client';
+import { CreateOpenRegisterDto } from './dtos/create-open-register.dto';
 
 /**
  * Controller for handling open register related operations.
@@ -59,7 +59,7 @@ export class OpenRegisterController {
   })
   @Get('by-cashier')
   async getOpenRegisterByUser(@Req() req) {
-    const user = req.user as Users;
+    const user = req.user as users;
     return this.openRegisterService.getOpenRegisterByUser(user.id);
   }
 

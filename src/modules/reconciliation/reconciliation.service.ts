@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
-import { CreateReconciliationDto } from '../../generated/prisma/reconciliation/dto/create-reconciliation.dto';
 import {
   reconciliation_status_enum,
   register_status_enum,
   transaction_status_enum,
 } from '@prisma/client';
+import { CreateReconciliationDto } from './dtos/create-reconciliation.dto';
 
 @Injectable()
 export class ReconciliationService {

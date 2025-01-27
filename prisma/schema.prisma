@@ -4,17 +4,6 @@ generator client {
   binaryTargets   = ["native", "linux-musl"]
 }
 
-generator nestjsDto {
-  provider                        = "prisma-generator-nestjs-dto"
-  output                          = "../src/generated/prisma"
-  outputToNestJsResourceStructure = "true"
-  updateDtoPrefix                 = "Update"
-  createDtoPrefix                 = "Create"
-  reExport                        = "false"
-  exportRelationModifierClasses   = "false"
-  dtoSuffix                       = "Dto"
-}
-
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")

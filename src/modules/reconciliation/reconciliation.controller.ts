@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { ReconciliationService } from './reconciliation.service';
-import { Users } from '@/generated/prisma/users/entities/users.entity';
-import { CreateReconciliationDto } from '../../generated/prisma/reconciliation/dto/create-reconciliation.dto';
+import { users as Users } from '@prisma/client';
+import { CreateReconciliationDto } from './dtos/create-reconciliation.dto';
 
 @ApiBearerAuth()
 @UseGuards(SupabaseGuard)

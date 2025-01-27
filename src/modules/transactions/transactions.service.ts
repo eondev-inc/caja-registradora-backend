@@ -1,4 +1,4 @@
-import { Transactions } from '@/generated/prisma/transactions/entities/transactions.entity';
+import { transactions as Transactions } from '@prisma/client';
 import { CreateTransactionsDto } from './dtos/create.transactions.dto';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
