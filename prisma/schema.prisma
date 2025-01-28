@@ -183,7 +183,7 @@ model transactions {
 }
 
 model users {
-  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id            String          @id @unique @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   user_id       String          @db.Uuid
   email         String?         @db.VarChar(255)
   password      String?         @db.VarChar(255)

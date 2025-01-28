@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
@@ -39,26 +40,113 @@ export class AuthService {
    * @returns Un objeto con la información del usuario autenticado.
    * @throws UnauthorizedException - Si las credenciales son incorrectas.
    */
-  async authenticateUser({ email, password }: AuthenticationDto) {
-    // Autenticar usuario con email y password
+  async authenticateUser(jsonToken: AuthenticationDto) {
     const user = await this.prismaService.users.findFirst({
       where: {
-        email,
+        email: jsonToken.email ,
       },
     });
 
     if (!user) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+      throw new NotFoundException('Credenciales incorrectas');
     }
+    const isPasswordValid = compare(jsonToken.password, user.password);
 
-    const isPasswordValid = await compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+      throw new NotFoundException('Credenciales incorrectas');
     }
 
-    const payload = { email: user.email, sub: user.user_id };
+    const accessToken = this.jwtServivice.sign(
+      { sub: user.id },
+      { expiresIn: 60000 },
+    );
+
+    const refreshToken = this.jwtServivice.sign(
+      { sub: user.id },
+      { expiresIn: '7d' },
+    );
+
+    this.saveRefreshToken(user.id, refreshToken);
+
     return {
-      access_token: this.jwtServivice.sign(payload),
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  /**
+   * Guarda el token de refresco en la base de datos.
+   * @param userId - ID del usuario.
+   * @param refreshToken - Token de refresco.
+   */
+  async saveRefreshToken(userId: string, refreshToken: string) {
+
+    // Verificar si el usuario existe
+    const user = await this.prismaService.users.findUnique({
+      where: { id: userId },
+    });
+
+    const userToken = await this.prismaService.users_tokens.findFirst({
+      where: {
+        user_id: userId,
+      },
+    });
+
+    if (!user) {
+      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
+    }
+    
+    const token = await hash(refreshToken, await genSalt(10));
+
+    await this.prismaService.users_tokens.upsert({
+      where: {
+        id: userToken?.id,
+      },
+      create: {
+        user_id: user.id,
+        token,
+        is_revoked: false,
+      },
+      update: {
+        token,
+        is_revoked: false,
+      },
+    });
+  }
+
+  /**
+   * Valida un token de refresco.
+   * @param refreshToken - Token de refresco a validar.
+   * 
+   * @returns Un objeto con la información del usuario autenticado.
+   * @throws UnauthorizedException - Si el token de refresco es inválido.
+  **/
+  async validateRefreshToken(token: string) {
+
+    const isValid = await this.jwtServivice.verify(token);
+    
+    if (!isValid) {
+      throw new UnauthorizedException('Token de refresco inválido');
+    }
+
+    const userToken = await this.prismaService.users_tokens.findFirst({
+      where: {
+        token: await hash(token, await genSalt(10)),
+        is_revoked: false,
+      },
+    });
+
+    if (!token) {
+      throw new UnauthorizedException('Token de refresco inválido');
+    }
+
+    const accessToken = this.jwtServivice.sign(
+      { sub: userToken.user_id },
+      { expiresIn: '1h' },
+    );
+
+    return {
+      accessToken,
     };
   }
 
@@ -111,5 +199,23 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  /**
+   * Cierra la sesión de un usuario.
+   * @param userId - ID del usuario.
+   */
+  async logoutUser(refreshToken: string) {
+    const decode = await this.jwtServivice.decode(refreshToken);
+    const userId = decode.sub;
+    
+    await this.prismaService.users_tokens.updateMany({
+      where: {
+        user_id: userId,
+      },
+      data: {
+        is_revoked: true,
+      },
+    });
   }
 }

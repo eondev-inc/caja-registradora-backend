@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 
@@ -8,13 +8,14 @@ import { AuthenticationDto } from '../dtos/authentication.dto';
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
   constructor(private authService: AuthService) {
-    super({ usernameField: 'rut', passwordField: 'password' });
+    super({ usernameField: 'email', passwordField: 'password' });
   }
+  
 
   async validate(token: AuthenticationDto) {
     const user = await this.authService.authenticateUser(token);
     if (!user) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+      throw new NotFoundException('Credenciales incorrectas');
     }
     return user;
   }

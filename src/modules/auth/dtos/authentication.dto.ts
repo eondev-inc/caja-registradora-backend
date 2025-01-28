@@ -3,14 +3,14 @@ import { IsString } from 'class-validator';
 
 export class AuthenticationDto {
   @ApiProperty({
-    description: 'Token de acceso desde em-authserver',
-    type: 'email',
+    description: 'Correo-e del usuario',
+    format: 'email',
   })
   @IsString()
   email: string;
 
   @ApiProperty({
-    description: 'Token de acceso desde em-authserver',
+    description: 'Contraseña del usuario',
     type: 'string',
   })
   @IsString()

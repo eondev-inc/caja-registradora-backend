@@ -1,4 +1,4 @@
-import { transactions as Transactions } from '@prisma/client';
+import { invoice_status_enum, transactions as Transactions } from '@prisma/client';
 import { CreateTransactionsDto } from './dtos/create.transactions.dto';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
@@ -21,6 +21,7 @@ export class TransactionsService {
     const invoice = await this.prismaService.invoice.create({
       data: {
         ...createTransactionDto.invoice,
+        status: invoice_status_enum.PAGADO,
         invoice_items: {
           create: createTransactionDto.invoice_items,
         },

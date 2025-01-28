@@ -8,7 +8,7 @@ import { LoggingConfigService } from '@/config/logging/logging-config.service';
 export class AllExceptionsFilter extends BaseExceptionFilter {
   private readonly logger = LoggingConfigService.getInstance().getLogger();
   catch(exception: Error, host: ArgumentsHost): any {
-    this.logger.error('exception :>> ', exception);
+    //this.logger.error('exception :>> ', exception?.message);
 
     const httpContext = host.switchToHttp();
     const res = httpContext.getResponse<FastifyReply>();

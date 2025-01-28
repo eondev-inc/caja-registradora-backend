@@ -21,6 +21,8 @@ import {
 import { AllExceptionsFilter } from './commons/filters/allExceptions.filter';
 import { PrismaService } from 'nestjs-prisma';
 
+import fastifyCookie from '@fastify/cookie';
+
 async function bootstrap() {
   const fastifyAdapter = new FastifyAdapter({
     logger: false,
@@ -31,6 +33,13 @@ async function bootstrap() {
     AppModule,
     fastifyAdapter,
   );
+  //Enable cookie parser
+  app.register(fastifyCookie, {
+    secret: 'elSecretoDeLaAbuela',
+    parseOptions: {},
+  });
+
+
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
   const { httpAdapter } = app.get(HttpAdapterHost);
   const logger = LoggingConfigService.getInstance().getLogger();
@@ -56,7 +65,8 @@ async function bootstrap() {
   });
   //Enable CORS
   app.enableCors({
-    origin: '*',
+    origin: 'http://localhost:3000',
+    credentials: true,
     preflightContinue: true,
     optionsSuccessStatus: 200,
   });
