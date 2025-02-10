@@ -21,4 +21,5 @@ export default registerAs('app', () => ({
   supabaseJwtSecret: process.env.SUPABASE_JWT_SECRET,
   supabaseUrl: process.env.SUPABASE_URL,
   supabaseKey: process.env.SUPABASE_KEY,
+  appFrontEndUrl: process.env.APP_FRONT_END_URL,
 }));

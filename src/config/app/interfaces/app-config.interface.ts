@@ -12,4 +12,5 @@ export interface AppConfig {
   supabaseUrl: string;
   supabaseKey: string;
   supabaseJwtSecret: string;
+  appFrontEndUrl: string;
 }

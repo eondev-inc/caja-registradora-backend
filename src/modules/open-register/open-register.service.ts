@@ -7,9 +7,12 @@ import { PrismaService } from 'nestjs-prisma';
 import { CreateOpenRegisterDto } from './dtos/create-open-register.dto';
 import { open_register as OpenRegister } from '@prisma/client'; 
 import { register_status_enum } from '@prisma/client';
+import { LoggingConfigService } from '@/config/logging/logging-config.service';
 
 @Injectable()
 export class OpenRegisterService {
+  private readonly logger = LoggingConfigService.getInstance().getLogger();
+
   constructor(private readonly prismaService: PrismaService) {}
 
   /**
@@ -113,7 +116,8 @@ export class OpenRegisterService {
         },
       });
     } catch (error) {
-      throw new BadRequestException('Failed to create open register');
+      this.logger.error('Failed to create open register', error);
+      throw new BadRequestException(error);
     }
   }
 }

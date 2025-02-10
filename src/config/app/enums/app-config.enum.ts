@@ -12,4 +12,5 @@ export enum AppConfig {
   SUPABASE_URL = 'supabaseUrl',
   SUPABASE_KEY = 'supabaseKey',
   SUPABASE_JWT_SECRET = 'supabaseJwtSecret',
+  APP_FRONT_END_URL = 'appFrontEndUrl',
 }

@@ -65,7 +65,7 @@ async function bootstrap() {
   });
   //Enable CORS
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: appConfig.get(AppConfig.APP_FRONT_END_URL) ?? 'http://localhost:3000',
     credentials: true,
     preflightContinue: true,
     optionsSuccessStatus: 200,

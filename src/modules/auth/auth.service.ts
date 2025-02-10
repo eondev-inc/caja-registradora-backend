@@ -40,19 +40,32 @@ export class AuthService {
    * @returns Un objeto con la información del usuario autenticado.
    * @throws UnauthorizedException - Si las credenciales son incorrectas.
    */
-  async authenticateUser(jsonToken: AuthenticationDto) {
+  async authenticateUser({email, password}: AuthenticationDto) {
     const user = await this.prismaService.users.findFirst({
+      select:{
+        id: true,
+        email: true,
+        forenames: true,
+        surnames: true,
+        password: true,
+        nid: true,
+        roles: {
+          select: {
+            role_name: true,
+          },
+        },
+      },
       where: {
-        email: jsonToken.email ,
+        email,
       },
     });
 
     if (!user) {
       throw new NotFoundException('Credenciales incorrectas');
     }
-    const isPasswordValid = compare(jsonToken.password, user.password);
-
+    const isPasswordValid = await compare(password, user.password);
     if (!isPasswordValid) {
+      this.logger.error('Credenciales incorrectas', password);
       throw new NotFoundException('Credenciales incorrectas');
     }
 
@@ -66,52 +79,53 @@ export class AuthService {
       { expiresIn: '7d' },
     );
 
-    this.saveRefreshToken(user.id, refreshToken);
+    this.saveAccessToken(user.id, accessToken);
+
+    delete user.password;
 
     return {
       accessToken,
       refreshToken,
+      user,
     };
   }
 
   /**
    * Guarda el token de refresco en la base de datos.
    * @param userId - ID del usuario.
-   * @param refreshToken - Token de refresco.
+   * @param accessToken - Token de refresco.
    */
-  async saveRefreshToken(userId: string, refreshToken: string) {
-
-    // Verificar si el usuario existe
-    const user = await this.prismaService.users.findUnique({
-      where: { id: userId },
-    });
-
+  async saveAccessToken(userId: string, accessToken: string) {
+    console.log(userId)
+    console.log(accessToken)
+  
     const userToken = await this.prismaService.users_tokens.findFirst({
       where: {
         user_id: userId,
       },
     });
-
-    if (!user) {
-      throw new HttpException('Usuario no encontrado', HttpStatus.NOT_FOUND);
-    }
     
-    const token = await hash(refreshToken, await genSalt(10));
+    const token = await hash(accessToken, await genSalt(10));
 
-    await this.prismaService.users_tokens.upsert({
-      where: {
-        id: userToken?.id,
-      },
-      create: {
-        user_id: user.id,
-        token,
-        is_revoked: false,
-      },
-      update: {
-        token,
-        is_revoked: false,
-      },
-    });
+    if (userToken) {
+      await this.prismaService.users_tokens.update({
+        where: {
+          id: userToken.id,
+        },
+        data: {
+          token,
+          is_revoked: false,
+        },
+      });
+    } else {
+      await this.prismaService.users_tokens.create({
+        data: {
+          user_id: userId,
+          token,
+          is_revoked: false,
+        },
+      });
+    }
   }
 
   /**
@@ -121,33 +135,31 @@ export class AuthService {
    * @returns Un objeto con la información del usuario autenticado.
    * @throws UnauthorizedException - Si el token de refresco es inválido.
   **/
-  async validateRefreshToken(token: string) {
-
-    const isValid = await this.jwtServivice.verify(token);
+  async validateRefreshToken(refreshToken: string) {
+    try {
+      console.log(refreshToken);
+      const isValid = await this.jwtServivice.verify(refreshToken);
     
-    if (!isValid) {
+      if (!isValid) {
+        throw new UnauthorizedException('Token de refresco inválido');
+      }
+      const { sub: userId } = await this.jwtServivice.decode(refreshToken);
+
+      const accessToken = this.jwtServivice.sign(
+        { sub: userId },
+        { expiresIn: '1h' },
+      );
+
+      this.saveAccessToken(userId, accessToken);
+
+      return {
+        accessToken,
+      };
+    }catch (error) {
+      this.logger.error('Token de refresco inválido', error);
       throw new UnauthorizedException('Token de refresco inválido');
     }
-
-    const userToken = await this.prismaService.users_tokens.findFirst({
-      where: {
-        token: await hash(token, await genSalt(10)),
-        is_revoked: false,
-      },
-    });
-
-    if (!token) {
-      throw new UnauthorizedException('Token de refresco inválido');
-    }
-
-    const accessToken = this.jwtServivice.sign(
-      { sub: userToken.user_id },
-      { expiresIn: '1h' },
-    );
-
-    return {
-      accessToken,
-    };
+    
   }
 
   /**
@@ -208,7 +220,7 @@ export class AuthService {
   async logoutUser(refreshToken: string) {
     const decode = await this.jwtServivice.decode(refreshToken);
     const userId = decode.sub;
-    
+
     await this.prismaService.users_tokens.updateMany({
       where: {
         user_id: userId,

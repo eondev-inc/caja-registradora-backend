@@ -30,6 +30,7 @@ import { AppConfigService } from './app-config.service';
         SUPABASE_URL: Joi.string().required(),
         SUPABASE_KEY: Joi.string().required(),
         SUPABASE_JWT_SECRET: Joi.string().required(),
+        APP_FRONT_END_URL: Joi.string().required(),
       }),
     }),
   ],

@@ -18,6 +18,7 @@ import {
 import { AuthUser } from '@supabase/supabase-js';
 import { users } from '@prisma/client';
 import { CreateOpenRegisterDto } from './dtos/create-open-register.dto';
+import { JwtAuthGuard } from '@/commons/guards/jwt-auth.guard';
 
 /**
  * Controller for handling open register related operations.
@@ -25,7 +26,7 @@ import { CreateOpenRegisterDto } from './dtos/create-open-register.dto';
  */
 @ApiTags('open-register')
 @ApiBearerAuth()
-@UseGuards(SupabaseGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('open-register')
 export class OpenRegisterController {
   constructor(private readonly openRegisterService: OpenRegisterService) {}
