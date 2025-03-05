@@ -17,7 +17,7 @@ async function main() {
     console.log(`Seeding table: ${tableName}`);
 
     for (const entry of data) {
-      await prisma[tableName].create({
+      await prisma[tableName].update({
         data: entry,
       });
     }
