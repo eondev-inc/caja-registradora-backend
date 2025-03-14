@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import e from 'express';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -17,9 +18,18 @@ async function main() {
     console.log(`Seeding table: ${tableName}`);
 
     for (const entry of data) {
-      await prisma[tableName].update({
-        data: entry,
+      const record = await prisma[tableName].findMany({
+        where: entry,
       });
+
+      if (record?.length === 0) {
+        await prisma[tableName].create({
+          data: entry,
+        });
+      } else {
+        console.log(`Record already exists: ${JSON.stringify(entry)}`);
+      }
+
     }
   }
 }

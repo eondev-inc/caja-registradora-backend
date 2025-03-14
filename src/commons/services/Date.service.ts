@@ -26,16 +26,4 @@ export class DateService {
     if (!convert) return DateTime.fromJSDate(date, { zone });
     return this.convertToTimezone(date, zone);
   };
-
-  // TODO Borrar los siguientes comentarios si no se hace uso de conversión de fecha con timezone a utc
-  // convertToUtc = (date: Date) => {
-  //   const { year, month, day, hour, minute, second, millisecond } = DateTime.fromJSDate(date);
-  //   const dateObject = { year, month, day, hour, minute, second, millisecond };
-  //   return DateTime.fromObject(dateObject).toUTC();
-  // };
-
-  // getInUtc = (date: Date, convert = true) => {
-  //   if (!convert) return DateTime.fromJSDate(date).toUTC();
-  //   return this.convertToUtc(date);
-  // };
 }
