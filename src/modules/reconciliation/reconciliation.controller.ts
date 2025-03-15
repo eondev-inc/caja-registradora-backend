@@ -4,6 +4,7 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -35,6 +36,16 @@ export class ReconciliationController {
       user.id,
       createReconcelation,
     );
+  }
+
+  @Patch('approve/:id')
+  async approveReconciliation(@Param('id') id: string) {
+    return await this.reconciliationService.approveReconciliation(id);
+  }
+
+  @Patch('reject/:id')
+  async rejectReconciliation(@Param('id') id: string) {
+    return await this.reconciliationService.rejectReconciliation(id);
   }
 
   @Get('list-by-user')

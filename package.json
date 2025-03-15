@@ -7,6 +7,7 @@
   "license": "MIT v3.0",
   "scripts": {
     "build": "nest build",
+    "prepare": "husky install",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
@@ -23,7 +24,9 @@
     "migrate:deploy": "npx prisma migrate deploy",
     "prisma:generate": "npx prisma generate",
     "prisma:studio": "npx prisma studio",
-    "prisma:seed": "npx prisma db seed"
+    "prisma:seed": "npx prisma db seed",
+    "precommit": "lint-staged",
+    "husky": "husky init"
   },
   "dependencies": {
     "@fastify/cookie": "^11.0.2",
@@ -117,5 +120,15 @@
   "prisma": {
     "schema": "./prisma/schema.prisma",
     "seed": "ts-node prisma/seed.ts"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "{src,apps,libs,test}/**/*.ts\"": [
+      "eslint --fix"
+    ]
   }
 }

@@ -22,17 +22,21 @@ export class OpenRegisterService {
    * @throws NotFoundException if the open register is not found
    */
   async getOpenRegister(id: string): Promise<OpenRegister> {
-    const openRegister = await this.prismaService.open_register.findUnique({
-      where: { id },
-      include: {
-        cash_register: true,
-        cashiers: true,
-      },
-    });
-    if (!openRegister) {
-      throw new NotFoundException(`Open register with ID ${id} not found`);
+    try {
+      const openRegister = await this.prismaService.open_register.findUnique({
+        where: { id },
+        include: {
+          cash_register: true,
+          cashiers: true,
+        },
+      });
+      if (!openRegister) {
+        throw new NotFoundException(`Open register with ID ${id} not found`);
+      }
+      return openRegister;
+    } catch (error) {
+      throw new BadRequestException(error, 'Failed to get open register');
     }
-    return openRegister;
   }
 
   /**
@@ -43,7 +47,10 @@ export class OpenRegisterService {
    */
   async getOpenRegisterByUser(userId: string): Promise<OpenRegister> {
     const openRegister = await this.prismaService.open_register.findFirst({
-      where: { users: { id: userId } },
+      where: {
+        status: register_status_enum.ABIERTO,
+        users: { id: userId },
+      },
     });
     if (!openRegister) {
       throw new NotFoundException(

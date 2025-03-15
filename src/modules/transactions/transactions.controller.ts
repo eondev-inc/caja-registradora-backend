@@ -5,10 +5,10 @@ import {
   Param,
   Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { CreateTransactionsDto } from './dtos/create.transactions.dto';
 import { SupabaseGuard } from '@/commons/guards/supabase.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
@@ -19,24 +19,32 @@ export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post('create')
-  async createTransaction(@Body() createTransactionDto) {
+  async createTransaction(@Req() req, @Body() createTransactionDto) {
+    const user = req.user;
     return await this.transactionsService.createTransaction(
+      user.sub,
       createTransactionDto,
     );
   }
 
-  // @Patch('update')
-  // async updateTransaction(@Body() updateTransactionDto: UpdateTransactionDto) {
-  //   return this.transactionsService.updateTransaction(updateTransactionDto);
-  // }
-
-  @Get('list-by-user/:id')
-  async listTransactionsByUser(@Param('id') userId: string) {
-    return this.transactionsService.listTransactionsByUser(userId);
+  @Get('list-by-user')
+  async listTransactionsByUser(@Req() req) {
+    const user = req.user;
+    return this.transactionsService.listTransactionsByUser(user.sub);
   }
 
   @Get('list-by-center/:code')
   async listTransactionsByCenter(@Param('code') branchCode: string) {
     return this.transactionsService.listTransactionsByCenter(branchCode);
+  }
+
+  @Patch('cancel/:id')
+  async deleteTransaction(@Param('id') id: string) {
+    return this.transactionsService.cancelTransaction(id);
+  }
+
+  @Patch('devolution/:id')
+  async devolutionTransaction(@Param('id') id: string) {
+    return this.transactionsService.devolutionTransaction(id);
   }
 }

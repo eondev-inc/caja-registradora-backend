@@ -165,6 +165,7 @@ model transactions {
   invoice_id          String                  @db.Uuid
   transaction_type_id String                  @db.Uuid
   payment_method_id   String                  @db.Uuid
+  original_transaction_id String?             @db.Uuid
   amount              Decimal                 @db.Decimal(10, 2)
   description         String?
   reference_number    String?                 @db.VarChar(255)
@@ -246,4 +247,5 @@ enum transaction_status_enum {
   COMPLETADO
   PENDIENTE
   CANCELADO
+  DEVUELTO
 }
