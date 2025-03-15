@@ -1,12 +1,17 @@
 [
   {
     "role_name": "ADMINISTRADOR",
-    "description": "Rol Administrador desde EM para Caja",
+    "description": "Rol Administrador para Caja",
     "status": true
   },
   {
     "role_name": "CAJERO",
-    "description": "Rol de cajero regular desde EM para Caja",
+    "description": "Rol de cajero regular para Caja",
+    "status": true
+  },
+  {
+    "role_name": "SUPERVISOR",
+    "description": "Rol Supervisor para Caja",
     "status": true
   }
 ]

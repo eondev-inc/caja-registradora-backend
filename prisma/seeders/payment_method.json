@@ -2,7 +2,7 @@
   {
     "method_name": "BONO PAPEL",
     "description": "Bono Papel",
-    "status": true
+    "status": false
   },
   {
     "method_name": "TARJETA DEBITO",
@@ -22,6 +22,6 @@
   {
     "method_name": "BONO ELECTRONICO",
     "description": "Bono Electrónico",
-    "status": true
+    "status": false
   }
 ]

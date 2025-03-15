@@ -1,0 +1,32 @@
+[
+  {
+    "permission": "canCreateRegister",
+    "description": "Can create a register",
+    "status": true
+  },
+  {
+    "permission": "canCreateInvoice",
+    "description": "Can create an invoice",
+    "status": true
+  },
+  {
+    "permission": "canCreateAnullment",
+    "description": "Can create an anullment",
+    "status": true
+  },
+  {
+    "permission": "canAproveAnullment",
+    "description": "Can aprove an anullment",
+    "status": true
+  },
+  {
+    "permission": "canCreateDevolution",
+    "description": "Can create a devolution",
+    "status": true
+  },
+  {
+    "permission": "canApproveDevolution",
+    "description": "Can aprove a devolution",
+    "status": true
+  }
+]
