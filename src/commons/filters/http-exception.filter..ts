@@ -49,7 +49,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
       trace_id: uuidv4(),
     };
 
-    this.logger.error('[Error Body]', errorBody);
+    this.logger.error(`[Error - Body]`, errorBody);
 
     res.status(message['status'] || status).send(errorBody);
   }

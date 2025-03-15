@@ -22,7 +22,7 @@ export class CreateUserDto {
   @IsString()
   forenames: string;
 
-  @ApiProperty({ description: 'Type of National ID' })
+  @ApiProperty({ description: 'User Entity' })
   @IsString()
-  nidType: string;
+  entity_id: string;
 }

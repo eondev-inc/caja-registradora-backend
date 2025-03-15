@@ -24,7 +24,7 @@ export class TransactionsService {
         ...createTransactionDto.invoice,
         status: invoice_status_enum.PAGADO,
         invoice_items: {
-          create: createTransactionDto.invoice_items,
+          create: createTransactionDto.invoice.invoice_items,
         },
       },
     });
@@ -34,9 +34,7 @@ export class TransactionsService {
     // Get the open register of the user
     const openRegister = await this.prismaService.open_register.findFirst({
       where: {
-        cashiers: {
-          user_id: userId,
-        },
+        id: createTransactionDto.open_register_id,
         status: register_status_enum.ABIERTO,
       },
     });
@@ -61,13 +59,12 @@ export class TransactionsService {
    * @param userId - The ID of the user.
    * @returns A list of transactions associated with the user's open register.
    */
-  async listTransactionsByUser(userId: string) {
+  async listTransactionsByUser(userId: string, entityId: string) {
     // First we need to get the open register of the user
     const openRegister = await this.prismaService.open_register.findFirst({
       where: {
-        cashiers: {
-          user_id: userId,
-        },
+        created_by: userId,
+        cash_entity_id: entityId,
         status: register_status_enum.ABIERTO,
       },
     });
@@ -117,32 +114,33 @@ export class TransactionsService {
     });
   }
 
+
   /**
    * Lists transactions by center.
    * First, it retrieves the open registers of the center, then lists the transactions associated with those open registers.
    * @param branchCode - The branch code of the center.
    * @returns A list of transactions associated with the center's open registers.
    */
-  async listTransactionsByCenter(branchCode: string) {
-    // First we need to get the open register of the center
-    const openRegister = await this.prismaService.open_register.findMany({
-      where: {
-        cashiers: {
-          users: {
-            branch_code: branchCode,
-          },
-        },
-      },
-    });
+  // async listTransactionsByCenter(branchCode: string) {
+  //   // First we need to get the open register of the center
+  //   const openRegister = await this.prismaService.open_register.findMany({
+  //     where: {
+  //       cashiers: {
+  //         users: {
+  //           branch_code: branchCode,
+  //         },
+  //       },
+  //     },
+  //   });
 
-    return await this.prismaService.transactions.findMany({
-      where: {
-        open_register_id: {
-          in: openRegister.map((register) => register.id),
-        },
-      },
-    });
-  }
+  //   return await this.prismaService.transactions.findMany({
+  //     where: {
+  //       open_register_id: {
+  //         in: openRegister.map((register) => register.id),
+  //       },
+  //     },
+  //   });
+  // }
 
   /**
    * Cancels a transaction given its ID.
@@ -187,6 +185,7 @@ export class TransactionsService {
         payment_method_id: originalTransaction.payment_method_id,
         description: `Devolución de la transacción ${originalTransaction.id}`,
         status: transaction_status_enum.COMPLETADO,
+        original_transaction_id: originalTransaction.id,
       },
     });
   }

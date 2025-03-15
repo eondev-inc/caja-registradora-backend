@@ -10,27 +10,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model cash_register {
-  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  branch_code   String?         @db.VarChar(50)
-  created_at    DateTime?       @default(now()) @db.Timestamp(6)
-  updated_at    DateTime?       @default(now()) @db.Timestamp(6)
-  status        Boolean?        @default(true)
-  open_register open_register[]
-}
-
-model cashiers {
-  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id       String?         @db.Uuid
-  status        Boolean?        @default(true)
-  created_at    DateTime?       @default(now()) @db.Timestamp(6)
-  updated_at    DateTime?       @default(now()) @db.Timestamp(6)
-  users         users?          @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
-  open_register open_register[]
-
-  @@index([user_id], map: "idx_cashiers_user_id")
-}
-
 model invoice {
   id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   custumer_nid      String?             @db.VarChar(50)
@@ -85,17 +64,13 @@ model open_register {
   created_at       DateTime?            @default(now()) @db.Timestamp(6)
   updated_at       DateTime?            @default(now()) @db.Timestamp(6)
   created_by       String?              @db.Uuid
-  cash_register_id String?              @db.Uuid
-  cashiers_id      String?              @db.Uuid
-  cash_register    cash_register?       @relation(fields: [cash_register_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cash_register")
-  cashiers         cashiers?            @relation(fields: [cashiers_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cashiers")
+  cash_entity_id   String?              @db.Uuid
   users            users?               @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_created_by")
+  entity           entity?              @relation(fields: [cash_entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cash_register")
   reconciliation   reconciliation[]
   transactions     transactions[]
 
-  @@index([cash_register_id], map: "idx_open_register_cash_register_id")
-  @@index([cashiers_id], map: "idx_open_register_cashiers_id")
-  @@index([created_by], map: "idx_open_register_created_by")
+  @@index([cash_entity_id, created_by], map: "idx_open_register_cash_register_id")
 }
 
 model payment_method {
@@ -139,14 +114,58 @@ model reconciliation {
   @@index([open_register_id], map: "idx_reconciliation_open_register_id")
 }
 
-model roles {
+model permmisions {
   id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  role_name   String?   @db.VarChar(255)
-  description String?
+  name        String?   @db.VarChar(255)
+  description String?   @db.VarChar(255)
   status      Boolean?  @default(true)
   created_at  DateTime? @default(now()) @db.Timestamp(6)
   updated_at  DateTime? @default(now()) @db.Timestamp(6)
-  users       users[]
+  role_permissions role_permissions[]
+  @@index([id], map: "idx_permmisions_id")
+  @@index([name], map: "idx_permmisions_perm_name")
+}
+
+model role_permissions {
+  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  role_id       String    @db.Uuid
+  permission_id String    @db.Uuid
+  created_at    DateTime? @default(now()) @db.Timestamp(6)
+  updated_at    DateTime? @default(now()) @db.Timestamp(6)
+  status        Boolean?  @default(true)
+  roles         roles     @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_role")
+  permissions   permmisions @relation(fields: [permission_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_permission")
+
+  @@index([role_id], map: "idx_role_permissions_role_id")
+  @@index([permission_id], map: "idx_role_permissions_permission_id")
+}
+
+model roles {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  role_name   String?   @db.VarChar(255)
+  description String?   @db.VarChar(255)
+  user_roles  user_roles[]
+  role_permissions role_permissions[]
+  status      Boolean?  @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @db.Timestamp(6)
+
+  @@index([id], map: "idx_roles_id")
+  @@index([role_name], map: "idx_roles_role_name")
+}
+
+model user_roles {
+  id      String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  user_id String @db.Uuid
+  role_id String @db.Uuid
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  status  Boolean? @default(true)
+  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
+  roles   roles  @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_role")
+
+  @@index([user_id], map: "idx_user_roles_user_id")
+  @@index([role_id], map: "idx_user_roles_role_id")
 }
 
 model transaction_type {
@@ -185,24 +204,23 @@ model transactions {
 
 model users {
   id            String          @id @unique @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  user_id       String          @db.Uuid
-  email         String?         @db.VarChar(255)
+  email         String          @unique @db.VarChar(255)
   password      String?         @db.VarChar(255)
   forenames     String?         @db.VarChar(255)
   surnames      String?         @db.VarChar(255)
-  nid_type      String?         @db.VarChar(50)
-  nid           String?         @db.VarChar(100)
-  role_id       String?         @db.Uuid
-  branch_code   String?         @db.VarChar(50)
+  nid           String          @unique @db.VarChar(100)
   created_at    DateTime?       @default(now()) @db.Timestamp(6)
   updated_at    DateTime?       @default(now()) @db.Timestamp(6)
   status        Boolean?        @default(true)
-  cashiers      cashiers[]
   open_register open_register[]
-  roles         roles?          @relation(fields: [role_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_role")
   users_tokens  users_tokens[]
+  user_roles    user_roles[]
+  entity_users  entity_users[]
 
-  @@index([role_id], map: "idx_users_role_id")
+  @@index([id], map: "idx_users_id")
+  @@index([email], map: "idx_users_email")
+  @@index([nid], map: "idx_users_nid")
+
 }
 
 model users_tokens {
@@ -217,10 +235,38 @@ model users_tokens {
   @@index([user_id], map: "idx_users_tokens_user_id")
 }
 
-enum cashier_status_enum {
-  ACTIVO
-  INACTIVO
-  SUSPENDIDO
+model entity {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nid         String?   @db.VarChar(50)
+  entity_name String?   @db.VarChar(255)
+  address     String?   @db.VarChar(255)
+  contact_phone       String?   @db.VarChar(50)
+  contact_email       String?   @db.VarChar(255)
+  description String?   @db.VarChar(255)
+  status      Boolean?  @default(true)
+  created_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_at  DateTime? @default(now()) @db.Timestamp(6)
+  updated_by  String?   @db.Uuid
+  entity_users entity_users[]
+  open_register open_register[]
+
+  @@index([id], map: "idx_entity_id")
+  @@index([nid], map: "idx_entity_nid")
+  @@index([entity_name], map: "idx_entity_name")
+}
+
+model entity_users {
+  id      String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  entity_id String @db.Uuid
+  user_id  String @db.Uuid
+  status   Boolean? @default(true)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  entities entity @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_entity")
+  users    users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user")
+
+  @@index([entity_id], map: "idx_entity_users_entity_id")
+  @@index([user_id], map: "idx_entity_users_user_id")
 }
 
 enum invoice_status_enum {

@@ -75,4 +75,9 @@ export class CreateReconciliationDto {
   @IsOptional()
   @IsUUID()
   approved_by?: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsUUID()
+  entity_id?: string;
 }

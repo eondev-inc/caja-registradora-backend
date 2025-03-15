@@ -13,17 +13,19 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { ReconciliationService } from './reconciliation.service';
 import { users as Users } from '@prisma/client';
 import { CreateReconciliationDto } from './dtos/create-reconciliation.dto';
+import { JwtAuthGuard } from '@/commons/guards/jwt-auth.guard';
+import { CalculateReconciliationDto } from './dtos/calculate-reconciliation.dto';
 
 @ApiBearerAuth()
-@UseGuards(SupabaseGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('reconciliation')
 export class ReconciliationController {
   constructor(private readonly reconciliationService: ReconciliationService) {}
 
   @Post('calculate')
-  async generateReconciliation(@Req() req) {
+  async generateReconciliation(@Req() req, @Body() calculate: CalculateReconciliationDto) {
     const user = req.user as Users;
-    return await this.reconciliationService.generatePreReconciliation(user.id);
+    return await this.reconciliationService.generatePreReconciliation(user.id, calculate.entity_id);
   }
 
   @Post('create')

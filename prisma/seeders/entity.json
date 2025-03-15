@@ -1,0 +1,20 @@
+[
+  {
+    "nid": "11111111-1",
+    "entity_name": "Las Noches S.A",
+    "address": "Calle 13 # 13-13",
+    "contact_phone": "5655223322",
+    "contact_email": "ejemplo@gmail.com",
+    "description": "Empresa de ejemplo",
+    "status": true
+  },
+  {
+    "nid": "22222222-2",
+    "entity_name": "El Sol S.A",
+    "address": "Avenida 45 # 45-45",
+    "contact_phone": "5634567890",
+    "contact_email": "contacto@elsol.com",
+    "description": "Otra empresa de ejemplo",
+    "status": true
+  }
+]

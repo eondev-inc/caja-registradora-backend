@@ -24,13 +24,12 @@ export class ReconciliationService {
    * @param userId - The ID of the user.
    * @returns An object containing the transaction counts and total amounts.
    */
-  async generatePreReconciliation(userId: string) {
+  async generatePreReconciliation(userId: string, entityId: string) {
     // Obtain the initial amount from the open register
     const openRegister = await this.prismaService.open_register.findFirst({
       where: {
-        cashiers: {
-          user_id: userId,
-        },
+        created_by: userId,
+        cash_entity_id: entityId,
         status: register_status_enum.ABIERTO,
       },
       select: {
@@ -46,9 +45,8 @@ export class ReconciliationService {
     const transactions = await this.prismaService.transactions.findMany({
       where: {
         open_register: {
-          cashiers: {
-            user_id: userId,
-          },
+          created_by: userId,
+          cash_entity_id: entityId,
         },
         status: {
           in: [
@@ -172,15 +170,16 @@ export class ReconciliationService {
         id: userId,
       },
       include: {
-        cashiers: true,
         open_register: {
           select: {
             id: true,
-            cashiers_id: true,
+            created_by: true,
+            cash_entity_id: true,
             status: true,
           },
           where: {
             status: register_status_enum.ABIERTO,
+            cash_entity_id: createReconciliation.entity_id,
           },
         },
       },

@@ -1,7 +1,8 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUUID, IsNumber, IsDate, IsEnum } from 'class-validator';
+import { IsOptional, IsString, IsUUID, IsNumber, IsDate, IsEnum, IsArray } from 'class-validator';
 import { invoice_status_enum } from '@prisma/client';
 import { CreateInvoiceItemDto } from './create-invoice-items.dto';
+import { Type } from 'class-transformer';
 
 export class CreateInvoiceDto {
   @ApiPropertyOptional({ type: String })
@@ -55,6 +56,8 @@ export class CreateInvoiceDto {
   updated_at?: Date;
 
   @ApiPropertyOptional({ type: [CreateInvoiceItemDto] })
+  @IsArray()
+  @Type(() => CreateInvoiceItemDto)
   @IsOptional()
   invoice_items?: CreateInvoiceItemDto[];
 }

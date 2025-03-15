@@ -4,11 +4,11 @@ import { IsString, IsOptional, IsUUID, IsInt, IsDecimal, IsDate } from 'class-va
 export class CreateInvoiceItemDto {
   @ApiProperty({ description: 'UUID of the invoice item' })
   @IsUUID()
-  id: string;
+  id?: string;
 
   @ApiProperty({ description: 'UUID of the invoice' })
   @IsUUID()
-  invoice_id: string;
+  invoice_id?: string;
 
   @ApiProperty({ description: 'Description of the invoice item', required: false })
   @IsOptional()

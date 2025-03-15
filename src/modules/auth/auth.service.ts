@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
@@ -15,6 +16,7 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { LoggingConfigService } from '@/config/logging/logging-config.service';
 import { v4 as uuidv4 } from 'uuid';
+import { create } from 'domain';
 
 /**
  * Servicio de autenticación para manejar la lógica de autenticación y registro de usuarios.
@@ -49,11 +51,21 @@ export class AuthService {
         surnames: true,
         password: true,
         nid: true,
-        users_roles: {
+        user_roles: {
           select: {
             roles: {
               select: {
                 role_name: true,
+              }
+            }
+          }
+        },
+        entity_users: {
+          select: {
+            entities: {
+              select: {
+                id: true,
+                entity_name: true,
               }
             }
           }
@@ -173,7 +185,7 @@ export class AuthService {
    * @throws ConflictException - Si el email ya está registrado.
    */
   async registerUser(createUserDto: CreateUserDto) {
-    const { email, password, nid, nidType, forenames, surnames } =
+    const { email, password, nid, forenames, surnames, entity_id } =
       createUserDto;
 
     const existingUserEmail = await this.prismaService.users.findFirst({
@@ -191,6 +203,11 @@ export class AuthService {
     const hashedPassword = await hash(password, await genSalt(10));
     const formattedNid = RUT.validate(nid) ? RUT.format(nid) : null;
 
+    if (!formattedNid) {
+      throw new BadRequestException('RUT inválido');
+    }
+
+    // the firts role is cashier then the administrator could change the role in a different panel
     const { id } = await this.prismaService.roles.findFirst({
       where: {
         role_name: RolesAutentia.CAJERO,
@@ -202,13 +219,24 @@ export class AuthService {
         email,
         password: hashedPassword,
         nid: formattedNid,
-        nid_type: nidType.toUpperCase(),
         forenames,
         surnames,
-        user_id: uuidv4(),
-        users_roles: {
+        user_roles: {
           create: {
-            role_id: id,
+            roles: {
+              connect: {
+                id,
+              }
+            }
+          }
+        },
+        entity_users: {
+          create: {
+            entities: {
+              connect: {
+                id: entity_id, //TODO: Cambiar por el ID de la entidad que vendría en el request.
+              }
+            } 
           }
         }
       },
@@ -221,6 +249,7 @@ export class AuthService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+    delete user.password;
 
     return user;
   }

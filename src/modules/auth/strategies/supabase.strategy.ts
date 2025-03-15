@@ -24,7 +24,7 @@ export class SupabaseStrategy extends PassportStrategy(Strategy) {
 
   async validate(user: AuthUser) {
     const users: users = await this.prismaService.users.findFirst({
-      where: { user_id: user.id },
+      where: { id: user.id },
     });
     return users;
   }

@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  HttpException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateOpenRegisterDto } from './dtos/create-open-register.dto';
@@ -26,8 +27,7 @@ export class OpenRegisterService {
       const openRegister = await this.prismaService.open_register.findUnique({
         where: { id },
         include: {
-          cash_register: true,
-          cashiers: true,
+          entity: true,
         },
       });
       if (!openRegister) {
@@ -45,11 +45,12 @@ export class OpenRegisterService {
    * @returns Promise<OpenRegister>
    * @throws NotFoundException if no open register is found for the user
    */
-  async getOpenRegisterByUser(userId: string): Promise<OpenRegister> {
+  async getOpenRegisterByUser(userId: string, entityId: string): Promise<OpenRegister> {
     const openRegister = await this.prismaService.open_register.findFirst({
       where: {
         status: register_status_enum.ABIERTO,
-        users: { id: userId },
+        created_by: userId,
+        cash_entity_id: entityId,
       },
     });
     if (!openRegister) {
@@ -69,42 +70,33 @@ export class OpenRegisterService {
    */
   async createOpenRegister(
     userId: string,
-    createOpenRegister: CreateOpenRegisterDto,
+    { initial_amount, entity_id }: CreateOpenRegisterDto,
   ): Promise<OpenRegister> {
     try {
-      //Fetch the user to get the branch_code
+      
+      //Fetch the user to get the entity ID
       const user = await this.prismaService.users.findFirst({
-        where: { user_id: userId },
+        where: { 
+          id: userId,
+          status: true,
+          entity_users: {
+            some: {
+              entity_id: entity_id,
+              status: true,
+            }
+          }
+        },
       });
 
       if (!user) {
         throw new NotFoundException(`User with ID ${userId} not found`);
       }
 
-      //Create a new cashier record if not exists in cashier for the same user
-      const cashier = await this.prismaService.cashiers.findFirst({
-        where: { users: { id: user.id } },
-      });
-      if (!cashier) {
-        await this.prismaService.cashiers.create({
-          data: {
-            users: { connect: { id: user.id } },
-          },
-        });
-      }
-
-      //Create a new cash_register record
-      const cashRegister = await this.prismaService.cash_register.create({
-        data: {
-          branch_code: user.branch_code,
-          status: true,
-        },
-      });
-
       // Find is there any open register for the user
       const openRegister = await this.prismaService.open_register.findFirst({
         where: {
           users: { id: user.id },
+          entity: { id: entity_id },
           status: register_status_enum.ABIERTO,
         },
       });
@@ -115,16 +107,15 @@ export class OpenRegisterService {
       //Create a new open_register record
       return await this.prismaService.open_register.create({
         data: {
-          initial_cash: createOpenRegister.initial_amount,
+          initial_cash: initial_amount,
           shift_init: new Date().toISOString(),
           users: { connect: { id: user.id } },
-          cash_register: { connect: { id: cashRegister.id } },
-          cashiers: { connect: { id: cashier.id } },
+          entity: { connect: { id: entity_id } },
         },
       });
     } catch (error) {
       this.logger.error('Failed to create open register', error);
-      throw new BadRequestException(error);
+      throw new BadRequestException('Failed to create open register', error);
     }
   }
 }

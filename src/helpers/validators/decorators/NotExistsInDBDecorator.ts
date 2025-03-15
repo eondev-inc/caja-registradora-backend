@@ -22,8 +22,8 @@ export class NotExistsInDBConstraint implements ValidatorConstraintInterface {
     let _table;
 
     switch (table) {
-      case 'cash_register':
-        _table = this.prisma.cash_register;
+      case 'entiy':
+        _table = this.prisma.entity;
         break;
       default:
         throw new Error(`Unsupported table: ${table}`);

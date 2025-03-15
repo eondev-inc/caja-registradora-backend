@@ -16,7 +16,8 @@ export class AuthController {
   async authenticateUser(
     @Body() jsonToken: AuthenticationDto,
     @Res({ passthrough: true }) res: FastifyReply
-  ) { // Use any type for Fastify response
+  ) { 
+    // Use any type for Fastify response
     const { accessToken, refreshToken, user } = await this.authService.authenticateUser(jsonToken);
 
     res.setCookie('refreshToken', refreshToken, {
