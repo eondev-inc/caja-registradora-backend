@@ -49,11 +49,15 @@ export class AuthService {
         surnames: true,
         password: true,
         nid: true,
-        roles: {
+        users_roles: {
           select: {
-            role_name: true,
-          },
-        },
+            roles: {
+              select: {
+                role_name: true,
+              }
+            }
+          }
+        }
       },
       where: {
         email,
@@ -189,7 +193,7 @@ export class AuthService {
 
     const { id } = await this.prismaService.roles.findFirst({
       where: {
-        role_name: RolesAutentia.ASISTENTE,
+        role_name: RolesAutentia.CAJERO,
       },
     });
     // Crear el usuario con la información proporcionada
@@ -202,11 +206,11 @@ export class AuthService {
         forenames,
         surnames,
         user_id: uuidv4(),
-        roles: {
-          connect: {
-            id,
-          },
-        },
+        users_roles: {
+          create: {
+            role_id: id,
+          }
+        }
       },
     });
 
