@@ -34,6 +34,7 @@ export class ReconciliationService {
       },
       select: {
         initial_cash: true,
+        id: true,
       },
     });
 
@@ -146,6 +147,7 @@ export class ReconciliationService {
     }, 0);
 
     return {
+      openRegisterId: openRegister.id,
       initialAmount: Number(openRegister.initial_cash),
       transactionDetailsByType,
       transactionDetailsByPaymentMethod,
@@ -189,19 +191,21 @@ export class ReconciliationService {
       throw new NotFoundException('User not found');
     }
 
+    const calculatedReconciliation = await this.generatePreReconciliation(
+      userId,
+      createReconciliation.entity_id,
+    );
+
     const reconciliation = await this.prismaService.reconciliation.create({
       data: {
-        opening_balance: createReconciliation.opening_balance,
+        opening_balance: calculatedReconciliation.initialAmount,
         closing_balance: createReconciliation.closing_balance,
-        expected_balance: createReconciliation.expected_balance,
+        expected_balance: calculatedReconciliation.expectedBalance,
         sales_summary: createReconciliation.sales_summary,
         total_sales: createReconciliation.total_sales,
-        cash_deposits: createReconciliation.cash_deposits,
-        cash_withdrawals: createReconciliation.cash_withdrawals,
-        discrepancy: createReconciliation.discrepancy,
+        discrepancy: createReconciliation.expected_balance - createReconciliation.closing_balance,
         notes: createReconciliation.notes,
         status: reconciliation_status_enum.PENDIENTE,
-        approved_by: user.id,
         open_register_id: user.open_register[0].id,
       },
     });
@@ -217,8 +221,15 @@ export class ReconciliationService {
    * @param userId - The ID of the user.
    * @returns The user ID.
    */
-  async listReconciliationsByUser(userId: string) {
-    return userId;
+  async listReconciliationsByUser(userId: string, entityId: string) {
+    return this.prismaService.reconciliation.findMany({
+      where: {
+        open_register: {
+          created_by: userId,
+          cash_entity_id: entityId,
+        },
+      },
+    });
   }
 
   /**
@@ -226,8 +237,14 @@ export class ReconciliationService {
    * @param branchCode - The branch code of the center.
    * @returns The branch code.
    */
-  async listReconciliationsByCenter(branchCode: string) {
-    return branchCode;
+  async listReconciliationsByCenter(entityId: string) {
+    return this.prismaService.reconciliation.findMany({
+      where: {
+        open_register: {
+          cash_entity_id: entityId,
+        },
+      },
+    });
   }
 
   /**
@@ -235,7 +252,7 @@ export class ReconciliationService {
    * @param reconciliationId - The ID of the reconciliation to approve.
    * @returns The approved reconciliation.
    */
-  async approveReconciliation(reconciliationId: string) {
+  async approveReconciliation(userId: string, reconciliationId: string) {
     try {
       const reconciliation = await this.prismaService.reconciliation.update({
         where: {
@@ -244,6 +261,7 @@ export class ReconciliationService {
         },
         data: {
           status: reconciliation_status_enum.CUADRADO,
+          approved_by: userId
         },
       });
 
@@ -267,13 +285,14 @@ export class ReconciliationService {
    * @param reconciliationId - The ID of the reconciliation to reject.
    * @returns The rejected reconciliation.
    */
-  async rejectReconciliation(reconciliationId: string) {
+  async rejectReconciliation(userId: string, reconciliationId: string) {
     const reconciliation = await this.prismaService.reconciliation.update({
       where: {
         id: reconciliationId,
       },
       data: {
         status: reconciliation_status_enum.RECHAZADO,
+        approved_by: userId,
       },
     });
 

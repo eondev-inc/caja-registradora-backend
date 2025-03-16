@@ -9,12 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
-import { SupabaseGuard } from '@/commons/guards/supabase.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateTransactionsDto } from './dtos/create.transactions.dto';
 
 @ApiBearerAuth()
-@UseGuards(SupabaseGuard)
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}

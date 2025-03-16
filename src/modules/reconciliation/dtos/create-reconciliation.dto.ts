@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsUUID, IsNumber, IsDate, IsEnum, IsJSON } from 'class-validator';
+import { IsOptional, IsString, IsUUID, IsNumber, IsDate, IsEnum, IsJSON, IsObject } from 'class-validator';
 import { reconciliation_status_enum } from '@prisma/client';
 
 export class CreateReconciliationDto {
@@ -28,8 +28,8 @@ export class CreateReconciliationDto {
   expected_balance?: number;
 
   @ApiProperty({ type: Object })
-  @IsJSON()
-  sales_summary: any;
+  @IsObject()
+  sales_summary: SalesSummary;
 
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
@@ -80,4 +80,8 @@ export class CreateReconciliationDto {
   @IsOptional()
   @IsUUID()
   entity_id?: string;
+}
+
+interface SalesSummary {
+  [key: string]: number;
 }

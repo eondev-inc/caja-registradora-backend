@@ -28,5 +28,20 @@
     "name": "canApproveDevolution",
     "description": "Can aprove a devolution",
     "status": true
+  },
+  {
+    "name": "canCreateReconciliation",
+    "description": "Can create a reconciliation",
+    "status": true
+  },
+  {
+    "name": "canApproveReconciliation",
+    "description": "Can aprove a reconciliation",
+    "status": true
+  },
+  {
+    "name": "canDisapproveReconciliation",
+    "description": "Can disapprove a reconciliation",
+    "status": true
   }
 ]

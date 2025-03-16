@@ -1,4 +1,3 @@
-import { SupabaseGuard } from '@/commons/guards/supabase.guard';
 import {
   Body,
   Controller,
@@ -41,25 +40,27 @@ export class ReconciliationController {
   }
 
   @Patch('approve/:id')
-  async approveReconciliation(@Param('id') id: string) {
-    return await this.reconciliationService.approveReconciliation(id);
+  async approveReconciliation(@Req() req, @Param('id') id: string) {
+    const user = req.user as Users;
+    return await this.reconciliationService.approveReconciliation(user.id, id);
   }
 
   @Patch('reject/:id')
-  async rejectReconciliation(@Param('id') id: string) {
-    return await this.reconciliationService.rejectReconciliation(id);
-  }
-
-  @Get('list-by-user')
-  async listReconciliationsByUser(@Req() req) {
+  async rejectReconciliation(@Req() req, @Param('id') id: string) {
     const user = req.user as Users;
-    return await this.reconciliationService.listReconciliationsByUser(user.id);
+    return await this.reconciliationService.rejectReconciliation(user.id, id);
   }
 
-  @Get('list-by-center/:code')
-  async listReconciliationsByCenter(@Param('code') branchCode: string) {
+  @Get('list-by-user/:entity-id')
+  async listReconciliationsByUser(@Req() req, @Param('entity-id') entityId: string) {
+    const user = req.user as Users;
+    return await this.reconciliationService.listReconciliationsByUser(user.id, entityId);
+  }
+
+  @Get('list-by-center/:entity-id')
+  async listReconciliationsByCenter(@Param('entity-id') entityId: string) {
     return await this.reconciliationService.listReconciliationsByCenter(
-      branchCode,
+      entityId,
     );
   }
 }

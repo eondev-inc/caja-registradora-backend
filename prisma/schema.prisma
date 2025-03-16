@@ -18,22 +18,11 @@ model invoice {
   tax_amount        Decimal?            @db.Decimal(10, 2)
   notes             String?
   status            invoice_status_enum @default(EMITIDO)
-  payment_status_id String?             @db.Uuid
+  payment_status    payment_status      @default(PAGADO)
   created_at        DateTime?           @default(now()) @db.Timestamp(6)
   updated_at        DateTime?           @default(now()) @db.Timestamp(6)
   invoice_items     invoice_items[]
   transactions      transactions[]
-}
-
-model payment_status {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  status_name String?   @db.VarChar(255)
-  description String?
-  created_at  DateTime? @default(now()) @db.Timestamp(6)
-  updated_at  DateTime? @default(now()) @db.Timestamp(6)
-  status      Boolean?  @default(true)
-
-  @@index([id], map: "idx_payment_status_id")
 }
 
 model invoice_items {
@@ -294,4 +283,9 @@ enum transaction_status_enum {
   PENDIENTE
   CANCELADO
   DEVUELTO
+}
+
+enum payment_status {
+  PAGADO
+  ANULADO
 }

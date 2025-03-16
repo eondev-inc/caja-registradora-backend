@@ -1,4 +1,3 @@
-import { SupabaseGuard } from '@/commons/guards/supabase.guard';
 import {
   Body,
   Controller,
