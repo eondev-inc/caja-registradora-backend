@@ -11,26 +11,29 @@ import {
 import { TransactionsService } from './transactions.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { CreateTransactionsDto } from './dtos/create.transactions.dto';
+import { users } from '@prisma/client';
+import { JwtAuthGuard } from '@/commons/guards/jwt-auth.guard';
 
 @ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('transactions')
 export class TransactionsController {
   constructor(private readonly transactionsService: TransactionsService) {}
 
   @Post('create')
   async createTransaction(@Req() req, @Body() createTransactionDto: CreateTransactionsDto) {
-    const user = req.user;
+    const user = req.user as users;
     console.log(createTransactionDto);
     return await this.transactionsService.createTransaction(
-      user.sub,
+      user.id,
       createTransactionDto,
     );
   }
 
   @Get('list-by-user/:entity_id')
   async listTransactionsByUser(@Req() req, @Param('entity_id') entityId: string) {
-    const user = req.user;
-    return this.transactionsService.listTransactionsByUser(user.sub, entityId);
+    const user = req.user as users;
+    return this.transactionsService.listTransactionsByUser(user.id, entityId);
   }
 
   // @Get('list-by-center/:code')

@@ -57,8 +57,8 @@ export class OpenRegisterController {
     status: 404,
     description: 'No open registers found for the cashier.',
   })
-  @Get('by-cashier/:entity-id')
-  async getOpenRegisterByUser(@Req() req, @Param('entity-id') entityId: string) {
+  @Get('by-cashier/:entityId')
+  async getOpenRegisterByUser(@Req() req, @Param('entityId') entityId: string) {
     const user = req.user as users;
     return this.openRegisterService.getOpenRegisterByUser(user.id, entityId);
   }

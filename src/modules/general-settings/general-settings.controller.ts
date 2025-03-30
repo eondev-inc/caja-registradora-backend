@@ -35,4 +35,11 @@ export class GeneralSettingsController {
   async getPrevisions() {
     return await this.generalSettingsService.getPrevisions();
   }
+
+  @Get('entities')
+  @ApiOperation({ summary: 'Get entities' })
+  @ApiResponse({ status: 200, description: 'List of entities' })
+  async getEntities() {
+    return await this.generalSettingsService.getEntities();
+  }
 }
