@@ -1,4 +1,2 @@
-#!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
-
-pnpm run precommit
+export PATH="$PATH:/usr/local/bin:/home/seventrust/.local/share/pnpm"
+pnpm precommit

@@ -64,7 +64,6 @@ export class TransactionsService {
     const openRegister = await this.prismaService.open_register.findFirst({
       where: {
         created_by: userId,
-        cash_entity_id: entityId,
         status: register_status_enum.ABIERTO,
       },
     });
@@ -104,7 +103,6 @@ export class TransactionsService {
                 id: true,
                 quantity: true,
                 total_price: true,
-                specialty_code: true,
                 professional_uuid: true,
               },
             },
@@ -114,7 +112,7 @@ export class TransactionsService {
     });
   }
 
-
+  
   /**
    * Lists transactions by center.
    * First, it retrieves the open registers of the center, then lists the transactions associated with those open registers.
