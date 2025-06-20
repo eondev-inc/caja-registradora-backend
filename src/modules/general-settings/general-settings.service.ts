@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { entity, payment_method, previsions, transaction_type } from '@prisma/client';
+import { entity, payment_method, transaction_type } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
@@ -24,14 +24,6 @@ export class GeneralSettingsService {
    */
   async getTransactionTypes(): Promise<transaction_type[]> {
     return await this.prismaService.transaction_type.findMany();
-  }
-
-  /**
-   * Retrieves all previsions.
-   * @returns A promise that resolves to an array of previsions.
-   */
-  async getPrevisions(): Promise<previsions[]> {
-    return await this.prismaService.previsions.findMany();
   }
 
   /**

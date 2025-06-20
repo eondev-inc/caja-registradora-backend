@@ -26,9 +26,6 @@ export class OpenRegisterService {
     try {
       const openRegister = await this.prismaService.open_register.findUnique({
         where: { id },
-        include: {
-          entity: true,
-        },
       });
       if (!openRegister) {
         throw new NotFoundException(`Open register with ID ${id} not found`);
@@ -50,7 +47,6 @@ export class OpenRegisterService {
       where: {
         status: register_status_enum.ABIERTO,
         created_by: userId,
-        cash_entity_id: entityId,
       },
     });
     if (!openRegister) {
@@ -96,7 +92,6 @@ export class OpenRegisterService {
       const openRegister = await this.prismaService.open_register.findFirst({
         where: {
           users: { id: user.id },
-          entity: { id: entity_id },
           status: register_status_enum.ABIERTO,
         },
       });
@@ -110,7 +105,6 @@ export class OpenRegisterService {
           initial_cash: initial_amount,
           shift_init: new Date().toISOString(),
           users: { connect: { id: user.id } },
-          entity: { connect: { id: entity_id } },
         },
       });
     } catch (error) {

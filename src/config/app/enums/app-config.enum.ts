@@ -1,16 +1,12 @@
 export enum AppConfig {
   PRISMA_LOG_OPTION = 'prismaLogOption',
   API_KEY = 'apiKey',
-  FASTIFY_ADDRESS = 'fastifyAddress',
   APP_TIMEZONE = 'appTimeZone',
   APP_LOCALE = 'appLocale',
+  FASTIFY_ADDRESS = 'fastifyAddress',
   PORT = 'port',
-  DATABASE_URL = 'databaseUrl',
-  DIRECT_URL = 'directUrl',
+  DATABASE_URL = 'dataBaseUrl',
   API_JWT_TOKEN = 'apiJwtToken',
   API_JWT_EXPIRING_HOUR = 'apiJwtExpiringHour',
-  SUPABASE_URL = 'supabaseUrl',
-  SUPABASE_KEY = 'supabaseKey',
-  SUPABASE_JWT_SECRET = 'supabaseJwtSecret',
   APP_FRONT_END_URL = 'appFrontEndUrl',
 }

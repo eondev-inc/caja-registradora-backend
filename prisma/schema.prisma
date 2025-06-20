@@ -7,15 +7,14 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
 
 model invoice {
-  id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   custumer_nid      String?             @db.VarChar(50)
   invoice_number    String?             @db.VarChar(50)
-  total_amount      Decimal?            @db.Decimal(10, 2)
-  tax_amount        Decimal?            @db.Decimal(10, 2)
+  total_amount      Int?                
+  tax_amount        Int?                
   notes             String?
   status            invoice_status_enum @default(EMITIDO)
   payment_status    payment_status      @default(PAGADO)
@@ -26,44 +25,39 @@ model invoice {
 }
 
 model invoice_items {
-  id                String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   invoice_id        String      @db.Uuid
-  description       String?
-  specialty_code    String?     @db.VarChar(50)
+  description       String?     @db.VarChar(255)
+  item_code         String?     @db.VarChar(50)
   professional_uuid String?     @db.Uuid
   quantity          Int?
-  total_price       Decimal?    @db.Decimal(10, 2)
-  discount_amount   Decimal?    @db.Decimal(10, 2)
+  total_price       Int?
+  discount_amount   Int?
   created_at        DateTime?   @default(now()) @db.Timestamp(6)
   updated_at        DateTime?   @default(now()) @db.Timestamp(6)
-  prevision_id      String?     @db.Uuid
   invoice           invoice     @relation(fields: [invoice_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invoice")
-  previsions        previsions? @relation(fields: [prevision_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_prevision")
 
   @@index([invoice_id], map: "idx_invoice_items_invoice_id")
-  @@index([prevision_id], map: "idx_invoice_items_prevision_id")
 }
 
 model open_register {
-  id               String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   shift_init       DateTime?            @db.Timestamp(6)
   shift_end        DateTime?            @db.Timestamp(6)
-  initial_cash     Decimal?             @db.Decimal(10, 2)
+  initial_cash     Int?                 
   status           register_status_enum @default(ABIERTO)
   created_at       DateTime?            @default(now()) @db.Timestamp(6)
   updated_at       DateTime?            @default(now()) @db.Timestamp(6)
   created_by       String?              @db.Uuid
-  cash_entity_id   String?              @db.Uuid
   users            users?               @relation(fields: [created_by], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_created_by")
-  entity           entity?              @relation(fields: [cash_entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_cash_register")
   reconciliation   reconciliation[]
   transactions     transactions[]
 
-  @@index([cash_entity_id, created_by], map: "idx_open_register_cash_register_id")
+  @@index([created_by], map: "idx_open_register_cash_register_id")
 }
 
 model payment_method {
-  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   method_name  String?        @db.VarChar(255)
   description  String?
   created_at   DateTime?      @default(now()) @db.Timestamp(6)
@@ -72,27 +66,17 @@ model payment_method {
   transactions transactions[]
 }
 
-model previsions {
-  id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  code          String?         @db.VarChar(50)
-  name          String?         @db.VarChar(255)
-  status        Boolean?        @default(true)
-  created_at    DateTime?       @default(now()) @db.Timestamp(6)
-  updated_at    DateTime?       @default(now()) @db.Timestamp(6)
-  invoice_items invoice_items[]
-}
-
 model reconciliation {
-  id               String                     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   open_register_id String                     @db.Uuid
-  opening_balance  Decimal?                   @db.Decimal(10, 2)
-  closing_balance  Decimal?                   @db.Decimal(10, 2)
-  expected_balance Decimal?                   @db.Decimal(10, 2)
+  opening_balance  Int?                   
+  closing_balance  Int?                   
+  expected_balance Int?                   
   sales_summary    Json
-  total_sales      Decimal?                   @db.Decimal(10, 2)
-  cash_deposits    Decimal?                   @db.Decimal(10, 2)
-  cash_withdrawals Decimal?                   @db.Decimal(10, 2)
-  discrepancy      Decimal?                   @db.Decimal(10, 2)
+  total_sales      Int?                   
+  cash_deposits    Int?                   
+  cash_withdrawals Int?                   
+  discrepancy      Int?                   
   notes            String?
   status           reconciliation_status_enum @default(PENDIENTE)
   created_at       DateTime?                  @default(now()) @db.Timestamp(6)
@@ -104,7 +88,7 @@ model reconciliation {
 }
 
 model permmisions {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String?   @db.VarChar(255)
   description String?   @db.VarChar(255)
   status      Boolean?  @default(true)
@@ -116,7 +100,7 @@ model permmisions {
 }
 
 model role_permissions {
-  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   role_id       String    @db.Uuid
   permission_id String    @db.Uuid
   created_at    DateTime? @default(now()) @db.Timestamp(6)
@@ -130,7 +114,7 @@ model role_permissions {
 }
 
 model roles {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   role_name   String?   @db.VarChar(255)
   description String?   @db.VarChar(255)
   user_roles  user_roles[]
@@ -144,7 +128,7 @@ model roles {
 }
 
 model user_roles {
-  id      String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id String @db.Uuid
   role_id String @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamp(6)
@@ -158,7 +142,7 @@ model user_roles {
 }
 
 model transaction_type {
-  id               String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   transaction_name String?        @db.VarChar(255)
   description      String?
   created_at       DateTime?      @default(now()) @db.Timestamp(6)
@@ -168,13 +152,13 @@ model transaction_type {
 }
 
 model transactions {
-  id                  String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                  String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   open_register_id    String                  @db.Uuid
   invoice_id          String                  @db.Uuid
   transaction_type_id String                  @db.Uuid
   payment_method_id   String                  @db.Uuid
   original_transaction_id String?             @db.Uuid
-  amount              Decimal                 @db.Decimal(10, 2)
+  amount              Int                     
   description         String?
   reference_number    String?                 @db.VarChar(255)
   status              transaction_status_enum @default(COMPLETADO)
@@ -192,7 +176,7 @@ model transactions {
 }
 
 model users {
-  id            String          @id @unique @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id            String          @id @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email         String          @unique @db.VarChar(255)
   password      String?         @db.VarChar(255)
   forenames     String?         @db.VarChar(255)
@@ -213,7 +197,7 @@ model users {
 }
 
 model users_tokens {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String    @db.Uuid
   token      String?   @db.VarChar(255)
   created_at DateTime? @default(now()) @db.Timestamp(6)
@@ -225,7 +209,7 @@ model users_tokens {
 }
 
 model entity {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nid         String?   @db.VarChar(50)
   entity_name String?   @db.VarChar(255)
   address     String?   @db.VarChar(255)
@@ -237,7 +221,6 @@ model entity {
   updated_at  DateTime? @default(now()) @db.Timestamp(6)
   updated_by  String?   @db.Uuid
   entity_users entity_users[]
-  open_register open_register[]
 
   @@index([id], map: "idx_entity_id")
   @@index([nid], map: "idx_entity_nid")
@@ -245,7 +228,7 @@ model entity {
 }
 
 model entity_users {
-  id      String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   entity_id String @db.Uuid
   user_id  String @db.Uuid
   status   Boolean? @default(true)

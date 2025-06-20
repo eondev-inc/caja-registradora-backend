@@ -29,13 +29,6 @@ export class GeneralSettingsController {
     return await this.generalSettingsService.getTransactionTypes();
   }
 
-  @Get('previsions')
-  @ApiOperation({ summary: 'Get previsions' })
-  @ApiResponse({ status: 200, description: 'List of previsions' })
-  async getPrevisions() {
-    return await this.generalSettingsService.getPrevisions();
-  }
-
   @Get('entities')
   @ApiOperation({ summary: 'Get entities' })
   @ApiResponse({ status: 200, description: 'List of entities' })

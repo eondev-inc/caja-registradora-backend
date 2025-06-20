@@ -29,7 +29,6 @@ export class ReconciliationService {
     const openRegister = await this.prismaService.open_register.findFirst({
       where: {
         created_by: userId,
-        cash_entity_id: entityId,
         status: register_status_enum.ABIERTO,
       },
       select: {
@@ -47,7 +46,6 @@ export class ReconciliationService {
       where: {
         open_register: {
           created_by: userId,
-          cash_entity_id: entityId,
         },
         status: {
           in: [
@@ -176,12 +174,10 @@ export class ReconciliationService {
           select: {
             id: true,
             created_by: true,
-            cash_entity_id: true,
             status: true,
           },
           where: {
             status: register_status_enum.ABIERTO,
-            cash_entity_id: createReconciliation.entity_id,
           },
         },
       },
@@ -226,22 +222,6 @@ export class ReconciliationService {
       where: {
         open_register: {
           created_by: userId,
-          cash_entity_id: entityId,
-        },
-      },
-    });
-  }
-
-  /**
-   * Lists reconciliations for a center.
-   * @param branchCode - The branch code of the center.
-   * @returns The branch code.
-   */
-  async listReconciliationsByCenter(entityId: string) {
-    return this.prismaService.reconciliation.findMany({
-      where: {
-        open_register: {
-          cash_entity_id: entityId,
         },
       },
     });

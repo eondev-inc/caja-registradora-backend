@@ -27,6 +27,9 @@ COPY package.json pnpm-lock.yaml ./
 # Instalar dependencias de la app
 RUN pnpm install
 
+#Recompíla Bcrypt
+RUN pnpm rebuild bcrypt
+
 # Copiar el resto del código al contenedor
 COPY . .
 

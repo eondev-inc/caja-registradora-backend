@@ -56,11 +56,4 @@ export class ReconciliationController {
     const user = req.user as Users;
     return await this.reconciliationService.listReconciliationsByUser(user.id, entityId);
   }
-
-  @Get('list-by-center/:entity-id')
-  async listReconciliationsByCenter(@Param('entity-id') entityId: string) {
-    return await this.reconciliationService.listReconciliationsByCenter(
-      entityId,
-    );
-  }
 }
