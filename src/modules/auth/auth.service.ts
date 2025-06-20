@@ -234,10 +234,10 @@ export class AuthService {
           create: {
             entities: {
               connect: {
-                id: entity_id, //TODO: Cambiar por el ID de la entidad que vendría en el request.
-              }
-            } 
-          }
+                id: entity_id,
+              },
+            },
+          },
         }
       },
     });

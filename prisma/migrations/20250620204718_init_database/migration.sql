@@ -15,7 +15,7 @@ CREATE TYPE "payment_status" AS ENUM ('PAGADO', 'ANULADO');
 
 -- CreateTable
 CREATE TABLE "invoice" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "custumer_nid" VARCHAR(50),
     "invoice_number" VARCHAR(50),
     "total_amount" INTEGER,
@@ -31,7 +31,7 @@ CREATE TABLE "invoice" (
 
 -- CreateTable
 CREATE TABLE "invoice_items" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "invoice_id" UUID NOT NULL,
     "description" VARCHAR(255),
     "item_code" VARCHAR(50),
@@ -47,7 +47,7 @@ CREATE TABLE "invoice_items" (
 
 -- CreateTable
 CREATE TABLE "open_register" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "shift_init" TIMESTAMP(6),
     "shift_end" TIMESTAMP(6),
     "initial_cash" INTEGER,
@@ -61,7 +61,7 @@ CREATE TABLE "open_register" (
 
 -- CreateTable
 CREATE TABLE "payment_method" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "method_name" VARCHAR(255),
     "description" TEXT,
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
@@ -73,7 +73,7 @@ CREATE TABLE "payment_method" (
 
 -- CreateTable
 CREATE TABLE "reconciliation" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "open_register_id" UUID NOT NULL,
     "opening_balance" INTEGER,
     "closing_balance" INTEGER,
@@ -94,7 +94,7 @@ CREATE TABLE "reconciliation" (
 
 -- CreateTable
 CREATE TABLE "permmisions" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" VARCHAR(255),
     "description" VARCHAR(255),
     "status" BOOLEAN DEFAULT true,
@@ -106,7 +106,7 @@ CREATE TABLE "permmisions" (
 
 -- CreateTable
 CREATE TABLE "role_permissions" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "role_id" UUID NOT NULL,
     "permission_id" UUID NOT NULL,
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
@@ -118,7 +118,7 @@ CREATE TABLE "role_permissions" (
 
 -- CreateTable
 CREATE TABLE "roles" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "role_name" VARCHAR(255),
     "description" VARCHAR(255),
     "status" BOOLEAN DEFAULT true,
@@ -130,7 +130,7 @@ CREATE TABLE "roles" (
 
 -- CreateTable
 CREATE TABLE "user_roles" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "role_id" UUID NOT NULL,
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
@@ -142,7 +142,7 @@ CREATE TABLE "user_roles" (
 
 -- CreateTable
 CREATE TABLE "transaction_type" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "transaction_name" VARCHAR(255),
     "description" TEXT,
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
@@ -154,7 +154,7 @@ CREATE TABLE "transaction_type" (
 
 -- CreateTable
 CREATE TABLE "transactions" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "open_register_id" UUID NOT NULL,
     "invoice_id" UUID NOT NULL,
     "transaction_type_id" UUID NOT NULL,
@@ -172,7 +172,7 @@ CREATE TABLE "transactions" (
 
 -- CreateTable
 CREATE TABLE "users" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "email" VARCHAR(255) NOT NULL,
     "password" VARCHAR(255),
     "forenames" VARCHAR(255),
@@ -187,7 +187,7 @@ CREATE TABLE "users" (
 
 -- CreateTable
 CREATE TABLE "users_tokens" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "token" VARCHAR(255),
     "created_at" TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP,
@@ -199,7 +199,7 @@ CREATE TABLE "users_tokens" (
 
 -- CreateTable
 CREATE TABLE "entity" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "nid" VARCHAR(50),
     "entity_name" VARCHAR(255),
     "address" VARCHAR(255),
@@ -216,7 +216,7 @@ CREATE TABLE "entity" (
 
 -- CreateTable
 CREATE TABLE "entity_users" (
-    "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "entity_id" UUID NOT NULL,
     "user_id" UUID NOT NULL,
     "status" BOOLEAN DEFAULT true,

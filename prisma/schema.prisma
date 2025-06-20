@@ -10,7 +10,7 @@ datasource db {
 }
 
 model invoice {
-  id                String              @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   custumer_nid      String?             @db.VarChar(50)
   invoice_number    String?             @db.VarChar(50)
   total_amount      Int?                
@@ -25,7 +25,7 @@ model invoice {
 }
 
 model invoice_items {
-  id                String      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   invoice_id        String      @db.Uuid
   description       String?     @db.VarChar(255)
   item_code         String?     @db.VarChar(50)
@@ -41,7 +41,7 @@ model invoice_items {
 }
 
 model open_register {
-  id               String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   shift_init       DateTime?            @db.Timestamp(6)
   shift_end        DateTime?            @db.Timestamp(6)
   initial_cash     Int?                 
@@ -57,7 +57,7 @@ model open_register {
 }
 
 model payment_method {
-  id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   method_name  String?        @db.VarChar(255)
   description  String?
   created_at   DateTime?      @default(now()) @db.Timestamp(6)
@@ -67,7 +67,7 @@ model payment_method {
 }
 
 model reconciliation {
-  id               String                     @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   open_register_id String                     @db.Uuid
   opening_balance  Int?                   
   closing_balance  Int?                   
@@ -88,7 +88,7 @@ model reconciliation {
 }
 
 model permmisions {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String?   @db.VarChar(255)
   description String?   @db.VarChar(255)
   status      Boolean?  @default(true)
@@ -100,7 +100,7 @@ model permmisions {
 }
 
 model role_permissions {
-  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   role_id       String    @db.Uuid
   permission_id String    @db.Uuid
   created_at    DateTime? @default(now()) @db.Timestamp(6)
@@ -114,7 +114,7 @@ model role_permissions {
 }
 
 model roles {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   role_name   String?   @db.VarChar(255)
   description String?   @db.VarChar(255)
   user_roles  user_roles[]
@@ -128,7 +128,7 @@ model roles {
 }
 
 model user_roles {
-  id      String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id String @db.Uuid
   role_id String @db.Uuid
   created_at DateTime? @default(now()) @db.Timestamp(6)
@@ -142,7 +142,7 @@ model user_roles {
 }
 
 model transaction_type {
-  id               String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   transaction_name String?        @db.VarChar(255)
   description      String?
   created_at       DateTime?      @default(now()) @db.Timestamp(6)
@@ -152,7 +152,7 @@ model transaction_type {
 }
 
 model transactions {
-  id                  String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                  String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   open_register_id    String                  @db.Uuid
   invoice_id          String                  @db.Uuid
   transaction_type_id String                  @db.Uuid
@@ -176,7 +176,7 @@ model transactions {
 }
 
 model users {
-  id            String          @id @unique @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id            String          @id @unique @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email         String          @unique @db.VarChar(255)
   password      String?         @db.VarChar(255)
   forenames     String?         @db.VarChar(255)
@@ -197,7 +197,7 @@ model users {
 }
 
 model users_tokens {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   user_id    String    @db.Uuid
   token      String?   @db.VarChar(255)
   created_at DateTime? @default(now()) @db.Timestamp(6)
@@ -209,7 +209,7 @@ model users_tokens {
 }
 
 model entity {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nid         String?   @db.VarChar(50)
   entity_name String?   @db.VarChar(255)
   address     String?   @db.VarChar(255)
@@ -228,7 +228,7 @@ model entity {
 }
 
 model entity_users {
-  id      String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id      String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   entity_id String @db.Uuid
   user_id  String @db.Uuid
   status   Boolean? @default(true)
