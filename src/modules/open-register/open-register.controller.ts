@@ -71,7 +71,9 @@ export class OpenRegisterController {
    */
   @ApiOperation({ summary: 'Create a new open register' })
   @ApiResponse({ status: 201, description: 'The newly created open register.' })
+  @ApiResponse({ status: 409, description: 'Conflict data found.' })
   @ApiResponse({ status: 400, description: 'Invalid input data.' })
+  @ApiResponse({ status: 500, description: 'Internal server error.' })
   @Post()
   async createOpenRegister(
     @Req() req,

@@ -1,14 +1,16 @@
 import {
   Injectable,
   NotFoundException,
-  BadRequestException,
   HttpException,
+  ConflictException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from 'nestjs-prisma';
 import { CreateOpenRegisterDto } from './dtos/create-open-register.dto';
 import { open_register as OpenRegister } from '@prisma/client'; 
 import { register_status_enum } from '@prisma/client';
 import { LoggingConfigService } from '@/config/logging/logging-config.service';
+
 
 @Injectable()
 export class OpenRegisterService {
@@ -32,7 +34,11 @@ export class OpenRegisterService {
       }
       return openRegister;
     } catch (error) {
-      throw new BadRequestException(error, 'Failed to get open register');
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error('Unexpected error creating open register:', error);
+      throw new InternalServerErrorException('Fatal error cannot create open register');
     }
   }
 
@@ -43,18 +49,37 @@ export class OpenRegisterService {
    * @throws NotFoundException if no open register is found for the user
    */
   async getOpenRegisterByUser(userId: string, entityId: string): Promise<OpenRegister> {
-    const openRegister = await this.prismaService.open_register.findFirst({
-      where: {
-        status: register_status_enum.ABIERTO,
-        created_by: userId,
+    try {
+      const openRegister = await this.prismaService.open_register.findFirst({
+        where: {
+          status: register_status_enum.ABIERTO,
+          created_by: userId,
+          users: {
+          entity_users: {
+            some: {
+              entity_id: entityId,
+              status: true,
+            },
+          }
+        }
       },
     });
+
     if (!openRegister) {
       throw new NotFoundException(
         `No open register found for user with ID ${userId}`,
       );
     }
+
     return openRegister;
+
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error('Unexpected error creating open register:', error);
+      throw new InternalServerErrorException('Fatal error cannot create open register');
+    }
   }
 
   /**
@@ -91,13 +116,20 @@ export class OpenRegisterService {
       // Find is there any open register for the user
       const openRegister = await this.prismaService.open_register.findFirst({
         where: {
-          users: { id: user.id },
+          users: { 
+            id: user.id,
+            entity_users: {
+              some: {
+                entity_id: entity_id
+              }
+            } 
+          },
           status: register_status_enum.ABIERTO,
         },
       });
 
       if (openRegister) {
-        throw new BadRequestException('There is already an open register');
+        throw new ConflictException('There is already an open register');
       }
       //Create a new open_register record
       return await this.prismaService.open_register.create({
@@ -108,8 +140,11 @@ export class OpenRegisterService {
         },
       });
     } catch (error) {
-      this.logger.error('Failed to create open register', error);
-      throw new BadRequestException('Failed to create open register', error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.logger.error('Unexpected error creating open register:', error);
+      throw new InternalServerErrorException('Fatal error cannot create open register');
     }
   }
 }

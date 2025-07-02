@@ -25,6 +25,7 @@
     "prisma:generate": "npx prisma generate",
     "prisma:studio": "npx prisma studio",
     "prisma:seed": "npx prisma db seed",
+    "seed:roles-permissions": "tsx prisma/seed-roles-permissions.ts",
     "precommit": "lint-staged",
     "husky": "husky init"
   },
@@ -96,6 +97,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   },
   "jest": {

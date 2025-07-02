@@ -19,6 +19,7 @@ import { HttpError } from './http-exception.interface';
   NotFoundException,
   InternalServerErrorException,
   NotAcceptableException,
+  ConflictException,
   BadRequestException,
 )
 export class HttpExceptionFilter extends BaseExceptionFilter {

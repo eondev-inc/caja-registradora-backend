@@ -12,6 +12,7 @@ import { OpenRegisterModule } from './modules/open-register/open-register.module
 import { TransactionsModule } from './modules/transactions/transactions.module';
 import { ReconciliationModule } from './modules/reconciliation/reconciliation.module';
 import { GeneralSettingsModule } from './modules/general-settings/general-settings.module';
+import { RolesPermissionsModule } from './modules/roles-permissions/roles-permissions.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { GeneralSettingsModule } from './modules/general-settings/general-settin
     TransactionsModule,
     ReconciliationModule,
     GeneralSettingsModule,
+    RolesPermissionsModule,
   ],
   controllers: [AppController],
   providers: [AppService, Logger],
