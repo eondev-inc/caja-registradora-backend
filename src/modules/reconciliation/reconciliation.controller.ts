@@ -39,13 +39,13 @@ export class ReconciliationController {
     );
   }
 
-  @Patch('approve/:id')
+  @Post('approve/:id')
   async approveReconciliation(@Req() req, @Param('id') id: string) {
     const user = req.user as Users;
     return await this.reconciliationService.approveReconciliation(user.id, id);
   }
 
-  @Patch('reject/:id')
+  @Post('reject/:id')
   async rejectReconciliation(@Req() req, @Param('id') id: string) {
     const user = req.user as Users;
     return await this.reconciliationService.rejectReconciliation(user.id, id);
