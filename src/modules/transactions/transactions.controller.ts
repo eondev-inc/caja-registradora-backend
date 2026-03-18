@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -31,9 +32,21 @@ export class TransactionsController {
   }
 
   @Get('list-by-user/:entity_id')
-  async listTransactionsByUser(@Req() req, @Param('entity_id') entityId: string) {
+  async listTransactionsByUser(
+    @Req() req,
+    @Param('entity_id') entityId: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+    @Query('search') search?: string,
+  ) {
     const user = req.user as users;
-    return this.transactionsService.listTransactionsByUser(user.id, entityId);
+    return this.transactionsService.listTransactionsByUser(
+      user.id,
+      entityId,
+      page ? parseInt(page, 10) : 1,
+      limit ? parseInt(limit, 10) : 10,
+      search ?? '',
+    );
   }
 
   // @Get('list-by-center/:code')
