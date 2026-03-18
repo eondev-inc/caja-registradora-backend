@@ -25,19 +25,24 @@ model invoice {
 }
 
 model invoice_items {
-  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  invoice_id        String      @db.Uuid
-  description       String?     @db.VarChar(255)
-  item_code         String?     @db.VarChar(50)
-  professional_uuid String?     @db.Uuid
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  invoice_id        String        @db.Uuid
+  description       String?       @db.VarChar(255)
+  item_code         String?       @db.VarChar(50)
+  professional_uuid String?       @db.Uuid
+  prevision_id      String?       @db.Uuid
   quantity          Int?
   total_price       Int?
   discount_amount   Int?
-  created_at        DateTime?   @default(now()) @db.Timestamp(6)
-  updated_at        DateTime?   @default(now()) @db.Timestamp(6)
-  invoice           invoice     @relation(fields: [invoice_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invoice")
+  created_at        DateTime?     @default(now()) @db.Timestamp(6)
+  updated_at        DateTime?     @default(now()) @db.Timestamp(6)
+  invoice           invoice       @relation(fields: [invoice_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invoice")
+  professional      professionals? @relation(fields: [professional_uuid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invoice_item_professional")
+  prevision         previsions?   @relation(fields: [prevision_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invoice_item_prevision")
 
   @@index([invoice_id], map: "idx_invoice_items_invoice_id")
+  @@index([professional_uuid], map: "idx_invoice_items_professional_uuid")
+  @@index([prevision_id], map: "idx_invoice_items_prevision_id")
 }
 
 model open_register {
@@ -152,22 +157,23 @@ model transaction_type {
 }
 
 model transactions {
-  id                  String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  open_register_id    String                  @db.Uuid
-  invoice_id          String                  @db.Uuid
-  transaction_type_id String                  @db.Uuid
-  payment_method_id   String                  @db.Uuid
-  original_transaction_id String?             @db.Uuid
-  amount              Int                     
-  description         String?
-  reference_number    String?                 @db.VarChar(255)
-  status              transaction_status_enum @default(COMPLETADO)
-  created_at          DateTime?               @default(now()) @db.Timestamp(6)
-  updated_at          DateTime?               @default(now()) @db.Timestamp(6)
-  invoice             invoice                 @relation(fields: [invoice_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invoice")
-  open_register       open_register           @relation(fields: [open_register_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_open_register")
-  payment_method      payment_method          @relation(fields: [payment_method_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_payment_method")
-  transaction_type    transaction_type        @relation(fields: [transaction_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_transaction_type")
+  id                      String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  open_register_id        String                  @db.Uuid
+  invoice_id              String                  @db.Uuid
+  transaction_type_id     String                  @db.Uuid
+  payment_method_id       String                  @db.Uuid
+  original_transaction_id String?                 @db.Uuid
+  amount                  Int
+  description             String?
+  reference_number        String?                 @db.VarChar(255)
+  folio                   String?                 @db.VarChar(255)
+  status                  transaction_status_enum @default(COMPLETADO)
+  created_at              DateTime?               @default(now()) @db.Timestamp(6)
+  updated_at              DateTime?               @default(now()) @db.Timestamp(6)
+  invoice                 invoice                 @relation(fields: [invoice_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_invoice")
+  open_register           open_register           @relation(fields: [open_register_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_open_register")
+  payment_method          payment_method          @relation(fields: [payment_method_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_payment_method")
+  transaction_type        transaction_type        @relation(fields: [transaction_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_transaction_type")
 
   @@index([invoice_id], map: "idx_transactions_invoice_id")
   @@index([open_register_id], map: "idx_transactions_open_register_id")
@@ -209,22 +215,53 @@ model users_tokens {
 }
 
 model entity {
-  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  nid         String?   @db.VarChar(50)
-  entity_name String?   @db.VarChar(255)
-  address     String?   @db.VarChar(255)
-  contact_phone       String?   @db.VarChar(50)
-  contact_email       String?   @db.VarChar(255)
-  description String?   @db.VarChar(255)
-  status      Boolean?  @default(true)
-  created_at  DateTime? @default(now()) @db.Timestamp(6)
-  updated_at  DateTime? @default(now()) @db.Timestamp(6)
-  updated_by  String?   @db.Uuid
-  entity_users entity_users[]
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nid           String?        @db.VarChar(50)
+  entity_name   String?        @db.VarChar(255)
+  address       String?        @db.VarChar(255)
+  contact_phone String?        @db.VarChar(50)
+  contact_email String?        @db.VarChar(255)
+  description   String?        @db.VarChar(255)
+  status        Boolean?       @default(true)
+  created_at    DateTime?      @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?      @default(now()) @db.Timestamp(6)
+  updated_by    String?        @db.Uuid
+  entity_users  entity_users[]
+  professionals professionals[]
 
   @@index([id], map: "idx_entity_id")
   @@index([nid], map: "idx_entity_nid")
   @@index([entity_name], map: "idx_entity_name")
+}
+
+model professionals {
+  id                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  professional_name String?         @db.VarChar(255)
+  specialty         String?         @db.VarChar(255)
+  rut               String?         @db.VarChar(20)
+  entity_id         String?         @db.Uuid
+  status            Boolean?        @default(true)
+  created_at        DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at        DateTime?       @default(now()) @db.Timestamp(6)
+  entity            entity?         @relation(fields: [entity_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_professional_entity")
+  invoice_items     invoice_items[]
+
+  @@index([id], map: "idx_professionals_id")
+  @@index([entity_id], map: "idx_professionals_entity_id")
+}
+
+model previsions {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String          @db.VarChar(255)
+  code          String          @db.VarChar(50)
+  description   String?
+  status        Boolean?        @default(true)
+  created_at    DateTime?       @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?       @default(now()) @db.Timestamp(6)
+  invoice_items invoice_items[]
+
+  @@index([id], map: "idx_previsions_id")
+  @@index([code], map: "idx_previsions_code")
 }
 
 model entity_users {

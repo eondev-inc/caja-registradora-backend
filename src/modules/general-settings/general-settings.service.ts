@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { entity, payment_method, transaction_type } from '@prisma/client';
+import { entity, payment_method, previsions, professionals, transaction_type } from '@prisma/client';
 import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
@@ -8,14 +8,16 @@ export class GeneralSettingsService {
    * Creates an instance of GeneralSettingsService.
    * @param prismaService - The Prisma service instance.
    */
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
   /**
-   * Retrieves all payment methods.
-   * @returns A promise that resolves to an array of payment methods.
+   * Retrieves all active payment methods.
+   * @returns A promise that resolves to an array of active payment methods.
    */
   async getPaymentMethods(): Promise<payment_method[]> {
-    return await this.prismaService.payment_method.findMany();
+    return await this.prismaService.payment_method.findMany({
+      where: { status: true },
+    });
   }
 
   /**
@@ -38,6 +40,38 @@ export class GeneralSettingsService {
         id: entity.id,
         name: entity.entity_name,
       };
+    });
+  }
+
+  /**
+   * Retrieves all professionals.
+   * @returns A promise that resolves to an array of professionals.
+   */
+  async getProfessionals(): Promise<Partial<professionals>[]> {
+    return await this.prismaService.professionals.findMany({
+      where: { status: true },
+      select: {
+        id: true,
+        professional_name: true,
+        specialty: true,
+        rut: true,
+      },
+    });
+  }
+
+  /**
+   * Retrieves all previsions.
+   * @returns A promise that resolves to an array of previsions.
+   */
+  async getPrevisions(): Promise<Partial<previsions>[]> {
+    return await this.prismaService.previsions.findMany({
+      where: { status: true },
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        description: true,
+      },
     });
   }
 

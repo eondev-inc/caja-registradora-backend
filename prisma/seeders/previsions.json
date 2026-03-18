@@ -1,0 +1,32 @@
+[
+  {
+    "name": "FONASA",
+    "code": "FONASA",
+    "description": "Fondo Nacional de Salud",
+    "status": true
+  },
+  {
+    "name": "ISAPRE",
+    "code": "ISAPRE",
+    "description": "Instituciones de Salud Previsional",
+    "status": true
+  },
+  {
+    "name": "Particular",
+    "code": "PARTICULAR",
+    "description": "Pago particular sin previsión",
+    "status": true
+  },
+  {
+    "name": "Dipreca",
+    "code": "DIPRECA",
+    "description": "Dirección de Previsión de Carabineros de Chile",
+    "status": true
+  },
+  {
+    "name": "Capredena",
+    "code": "CAPREDENA",
+    "description": "Caja de Previsión de la Defensa Nacional",
+    "status": true
+  }
+]

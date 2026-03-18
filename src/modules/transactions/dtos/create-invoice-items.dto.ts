@@ -1,12 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsUUID, IsInt, IsDecimal, IsDate } from 'class-validator';
+import { IsString, IsOptional, IsUUID, IsInt, IsDate } from 'class-validator';
 
 export class CreateInvoiceItemDto {
-  @ApiProperty({ description: 'UUID of the invoice item' })
+  @ApiProperty({ description: 'UUID of the invoice item', required: false })
+  @IsOptional()
   @IsUUID()
   id?: string;
 
-  @ApiProperty({ description: 'UUID of the invoice' })
+  @ApiProperty({ description: 'UUID of the invoice', required: false })
+  @IsOptional()
   @IsUUID()
   invoice_id?: string;
 
@@ -15,29 +17,29 @@ export class CreateInvoiceItemDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ description: 'Specialty code', required: false })
-  @IsOptional()
-  @IsString()
-  specialty_code?: string;
-
   @ApiProperty({ description: 'UUID of the professional', required: false })
   @IsOptional()
   @IsUUID()
   professional_uuid?: string;
+
+  @ApiProperty({ description: 'UUID of the prevision', required: false })
+  @IsOptional()
+  @IsUUID()
+  prevision_id?: string;
 
   @ApiProperty({ description: 'Quantity of the item', required: false })
   @IsOptional()
   @IsInt()
   quantity?: number;
 
-  @ApiProperty({ description: 'Total price of the item', required: false })
+  @ApiProperty({ description: 'Total price of the item (integer, pesos chilenos)', required: false })
   @IsOptional()
-  @IsDecimal()
+  @IsInt()
   total_price?: number;
 
   @ApiProperty({ description: 'Discount amount', required: false })
   @IsOptional()
-  @IsDecimal()
+  @IsInt()
   discount_amount?: number;
 
   @ApiProperty({ description: 'Creation date', required: false })
@@ -49,9 +51,4 @@ export class CreateInvoiceItemDto {
   @IsOptional()
   @IsDate()
   updated_at?: Date;
-
-  @ApiProperty({ description: 'UUID of the prevision', required: false })
-  @IsOptional()
-  @IsUUID()
-  prevision_id?: string;
 }

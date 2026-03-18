@@ -13,7 +13,7 @@ import { GeneralSettingsService } from './general-settings.service';
 export class GeneralSettingsController {
   constructor(
     private readonly generalSettingsService: GeneralSettingsService,
-  ) {}
+  ) { }
 
   @Get('payment-methods')
   @ApiOperation({ summary: 'Get payment methods' })
@@ -34,5 +34,19 @@ export class GeneralSettingsController {
   @ApiResponse({ status: 200, description: 'List of entities' })
   async getEntities() {
     return await this.generalSettingsService.getEntities();
+  }
+
+  @Get('professionals')
+  @ApiOperation({ summary: 'Get professionals' })
+  @ApiResponse({ status: 200, description: 'List of professionals' })
+  async getProfessionals() {
+    return await this.generalSettingsService.getProfessionals();
+  }
+
+  @Get('previsions')
+  @ApiOperation({ summary: 'Get previsions' })
+  @ApiResponse({ status: 200, description: 'List of previsions' })
+  async getPrevisions() {
+    return await this.generalSettingsService.getPrevisions();
   }
 }

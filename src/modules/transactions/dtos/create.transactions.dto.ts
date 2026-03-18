@@ -49,6 +49,14 @@ export class CreateTransactionsDto {
   payment_method_id: string;
 
   @ApiProperty({
+    description: 'Folio number for bono payment method',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  folio?: string;
+
+  @ApiProperty({
     description: 'Invoice details associated with the transaction',
     type: CreateInvoiceDto,
   })

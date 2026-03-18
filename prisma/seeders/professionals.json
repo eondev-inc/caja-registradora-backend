@@ -1,0 +1,20 @@
+[
+  {
+    "professional_name": "Dr. Juan Pérez",
+    "specialty": "Medicina General",
+    "rut": "12.345.678-9",
+    "status": true
+  },
+  {
+    "professional_name": "Dra. María Gómez",
+    "specialty": "Pediatría",
+    "rut": "11.222.333-4",
+    "status": true
+  },
+  {
+    "professional_name": "Dr. Carlos Rodríguez",
+    "specialty": "Traumatología",
+    "rut": "15.678.901-2",
+    "status": true
+  }
+]
