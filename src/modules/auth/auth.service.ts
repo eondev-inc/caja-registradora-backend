@@ -15,8 +15,12 @@ import { compare, genSalt, hash } from 'bcrypt';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { LoggingConfigService } from '@/config/logging/logging-config.service';
-import { v4 as uuidv4 } from 'uuid';
-import { create } from 'domain';
+import { ConfigService } from '@nestjs/config';
+import { RedisService } from '@/modules/redis/redis.service';
+import { AppConfig } from '@/config/app/enums/app-config.enum';
+
+const LOGIN_LOCK_PREFIX = 'caja:login:fail:';
+const REFRESH_TOKEN_PREFIX = 'caja:refresh:';
 
 /**
  * Servicio de autenticación para manejar la lógica de autenticación y registro de usuarios.
@@ -29,22 +33,40 @@ export class AuthService {
    * Constructor del servicio de autenticación.
    * @param jwtServivice - Servicio JWT para manejar tokens.
    * @param prismaService - Servicio Prisma para interactuar con la base de datos.
+   * @param redisService - Servicio Redis para cache y login-lock.
+   * @param configService - Servicio de configuración.
    */
   constructor(
     private readonly jwtServivice: JwtService,
     private readonly prismaService: PrismaService,
+    private readonly redisService: RedisService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
    * Autentica un usuario con su email y contraseña.
+   * Implementa login-lock: bloquea la cuenta tras N intentos fallidos.
    * @param email - Email del usuario.
    * @param password - Contraseña del usuario.
-   * @returns Un objeto con la información del usuario autenticado.
-   * @throws UnauthorizedException - Si las credenciales son incorrectas.
+   * @returns Un objeto con accessToken, refreshToken y datos del usuario.
+   * @throws UnauthorizedException - Si las credenciales son incorrectas o la cuenta está bloqueada.
    */
-  async authenticateUser({email, password}: AuthenticationDto) {
+  async authenticateUser({ email, password }: AuthenticationDto) {
+    const lockKey = `${LOGIN_LOCK_PREFIX}${email}`;
+    const maxRetries = this.configService.get<number>(AppConfig.LOGIN_MAX_RETRIES) ?? 5;
+    const lockSeconds = this.configService.get<number>(AppConfig.LOGIN_LOCK_SECONDS) ?? 300;
+
+    // Verificar si la cuenta está bloqueada
+    const retries = await this.redisService.get(lockKey);
+    if (retries && parseInt(retries, 10) >= maxRetries) {
+      const remaining = await this.redisService.ttl(lockKey);
+      throw new UnauthorizedException(
+        `Cuenta bloqueada por demasiados intentos fallidos. Intentá nuevamente en ${remaining} segundos.`,
+      );
+    }
+
     const user = await this.prismaService.users.findFirst({
-      select:{
+      select: {
         id: true,
         email: true,
         forenames: true,
@@ -56,9 +78,9 @@ export class AuthService {
             roles: {
               select: {
                 role_name: true,
-              }
-            }
-          }
+              },
+            },
+          },
         },
         entity_users: {
           select: {
@@ -66,36 +88,47 @@ export class AuthService {
               select: {
                 id: true,
                 entity_name: true,
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       },
-      where: {
-        email,
-      },
+      where: { email },
     });
-    // Si el usuario no existe, lanzar UnauthorizedException
+
+    // Credenciales incorrectas: incrementar contador de fallos
     if (!user) {
-      throw new NotFoundException('Credenciales incorrectas');
-    }
-    const isPasswordValid = await compare(password, user.password);
-    if (!isPasswordValid) {
-      this.logger.error('Credenciales incorrectas', password);
+      await this.redisService.incrementWithTtl(lockKey, lockSeconds);
       throw new NotFoundException('Credenciales incorrectas');
     }
 
+    const isPasswordValid = await compare(password, user.password);
+    if (!isPasswordValid) {
+      const count = await this.redisService.incrementWithTtl(lockKey, lockSeconds);
+      this.logger.error(`Login fallido para ${email}. Intento ${count}/${maxRetries}.`);
+      throw new NotFoundException('Credenciales incorrectas');
+    }
+
+    // Login exitoso: limpiar contador de fallos
+    await this.redisService.del(lockKey);
+
+    const accessExpiry = this.configService.get<string>(AppConfig.JWT_ACCESS_EXPIRY) ?? '15m';
+    const refreshExpiry = this.configService.get<string>(AppConfig.JWT_REFRESH_EXPIRY) ?? '7d';
+
+    const roleNames = user.user_roles.map((ur) => ur.roles.role_name);
+
     const accessToken = this.jwtServivice.sign(
-      { sub: user.id },
-      { expiresIn: 60000 },
+      { sub: user.id, roles: roleNames },
+      { expiresIn: accessExpiry },
     );
 
     const refreshToken = this.jwtServivice.sign(
-      { sub: user.id },
-      { expiresIn: '7d' },
+      { sub: user.id, roles: roleNames },
+      { expiresIn: refreshExpiry },
     );
 
-    this.saveAccessToken(user.id, accessToken);
+    await this.saveAccessToken(user.id, accessToken);
+    await this.saveRefreshTokenInRedis(user.id, refreshToken);
 
     delete user.password;
 
@@ -107,75 +140,76 @@ export class AuthService {
   }
 
   /**
-   * Guarda el token de refresco en la base de datos.
+   * Guarda el token de acceso en la base de datos (hash).
    * @param userId - ID del usuario.
-   * @param accessToken - Token de refresco.
+   * @param accessToken - Token de acceso.
    */
   async saveAccessToken(userId: string, accessToken: string) {
-    console.log(userId)
-    console.log(accessToken)
-  
     const userToken = await this.prismaService.users_tokens.findFirst({
-      where: {
-        user_id: userId,
-      },
+      where: { user_id: userId },
     });
-    
+
     const token = await hash(accessToken, await genSalt(10));
 
     if (userToken) {
       await this.prismaService.users_tokens.update({
-        where: {
-          id: userToken.id,
-        },
-        data: {
-          token,
-          is_revoked: false,
-        },
+        where: { id: userToken.id },
+        data: { token, is_revoked: false },
       });
     } else {
       await this.prismaService.users_tokens.create({
-        data: {
-          user_id: userId,
-          token,
-          is_revoked: false,
-        },
+        data: { user_id: userId, token, is_revoked: false },
       });
     }
   }
 
   /**
+   * Guarda el refresh token en Redis (7 días de TTL).
+   * Permite validar y revocar sesiones sin tocar la DB en cada request.
+   * @param userId - ID del usuario.
+   * @param refreshToken - Token de refresco firmado.
+   */
+  async saveRefreshTokenInRedis(userId: string, refreshToken: string): Promise<void> {
+    const ttlDays = this.configService.get<number>(AppConfig.JWT_REFRESH_TTL_DAYS) ?? 7;
+    const ttl = ttlDays * 24 * 60 * 60; // días → segundos
+    await this.redisService.set(`${REFRESH_TOKEN_PREFIX}${userId}`, refreshToken, ttl);
+  }
+
+  /**
    * Valida un token de refresco.
+   * Verifica firma JWT y existencia en Redis (revocación).
    * @param refreshToken - Token de refresco a validar.
-   * 
-   * @returns Un objeto con la información del usuario autenticado.
-   * @throws UnauthorizedException - Si el token de refresco es inválido.
-  **/
+   * @returns Un objeto con el nuevo accessToken.
+   * @throws UnauthorizedException - Si el token es inválido o fue revocado.
+   */
   async validateRefreshToken(refreshToken: string) {
     try {
-      console.log(refreshToken);
       const isValid = await this.jwtServivice.verify(refreshToken);
-    
+
       if (!isValid) {
         throw new UnauthorizedException('Token de refresco inválido');
       }
+
       const { sub: userId } = await this.jwtServivice.decode(refreshToken);
+
+      // Verificar que el refresh token en Redis coincide (no fue revocado)
+      const storedToken = await this.redisService.get(`${REFRESH_TOKEN_PREFIX}${userId}`);
+      if (!storedToken || storedToken !== refreshToken) {
+        throw new UnauthorizedException('Sesión expirada o revocada');
+      }
 
       const accessToken = this.jwtServivice.sign(
         { sub: userId },
         { expiresIn: '1h' },
       );
 
-      this.saveAccessToken(userId, accessToken);
+      await this.saveAccessToken(userId, accessToken);
 
-      return {
-        accessToken,
-      };
-    }catch (error) {
+      return { accessToken };
+    } catch (error) {
       this.logger.error('Token de refresco inválido', error);
       throw new UnauthorizedException('Token de refresco inválido');
     }
-    
   }
 
   /**
@@ -195,7 +229,7 @@ export class AuthService {
     const existingUserNid = await this.prismaService.users.findFirst({
       where: { nid },
     });
-    // Si el email o el RUT ya están registrados, lanzar ConflictException
+
     if (existingUserEmail || existingUserNid) {
       throw new ConflictException('El usuario ya está registrado');
     }
@@ -207,13 +241,10 @@ export class AuthService {
       throw new BadRequestException('RUT inválido');
     }
 
-    // the firts role is cashier then the administrator could change the role in a different panel
     const { id } = await this.prismaService.roles.findFirst({
-      where: {
-        role_name: RolesAutentia.CAJERO,
-      },
+      where: { role_name: RolesAutentia.CAJERO },
     });
-    // Crear el usuario con la información proporcionada
+
     const user = await this.prismaService.users.create({
       data: {
         email,
@@ -223,22 +254,14 @@ export class AuthService {
         surnames,
         user_roles: {
           create: {
-            roles: {
-              connect: {
-                id,
-              }
-            }
-          }
+            roles: { connect: { id } },
+          },
         },
         entity_users: {
           create: {
-            entities: {
-              connect: {
-                id: entity_id,
-              },
-            },
+            entities: { connect: { id: entity_id } },
           },
-        }
+        },
       },
     });
 
@@ -256,19 +279,20 @@ export class AuthService {
 
   /**
    * Cierra la sesión de un usuario.
-   * @param userId - ID del usuario.
+   * Revoca el refresh token en Redis y marca el token en DB como revocado.
+   * @param refreshToken - Token de refresco activo del usuario.
    */
   async logoutUser(refreshToken: string) {
     const decode = await this.jwtServivice.decode(refreshToken);
     const userId = decode.sub;
 
+    // Revocar en Redis
+    await this.redisService.del(`${REFRESH_TOKEN_PREFIX}${userId}`);
+
+    // Revocar en DB
     await this.prismaService.users_tokens.updateMany({
-      where: {
-        user_id: userId,
-      },
-      data: {
-        is_revoked: true,
-      },
+      where: { user_id: userId },
+      data: { is_revoked: true },
     });
   }
 }

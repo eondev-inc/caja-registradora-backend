@@ -13,12 +13,14 @@ import { TransactionsModule } from './modules/transactions/transactions.module';
 import { ReconciliationModule } from './modules/reconciliation/reconciliation.module';
 import { GeneralSettingsModule } from './modules/general-settings/general-settings.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { RedisModule } from './modules/redis/redis.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    RedisModule,
     AuthModule,
     AppConfigModule,
     HttpModule,

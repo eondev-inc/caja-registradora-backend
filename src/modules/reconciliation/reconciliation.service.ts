@@ -44,9 +44,7 @@ export class ReconciliationService {
     // Obtain all transactions from the user
     const transactions = await this.prismaService.transactions.findMany({
       where: {
-        open_register: {
-          created_by: userId,
-        },
+        open_register_id: openRegister.id,
         status: {
           in: [
             transaction_status_enum.COMPLETADO,

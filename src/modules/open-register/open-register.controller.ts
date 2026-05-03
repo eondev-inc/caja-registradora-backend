@@ -59,7 +59,7 @@ export class OpenRegisterController {
   })
   @Get('by-cashier/:entityId')
   async getOpenRegisterByUser(@Req() req, @Param('entityId') entityId: string) {
-    const user = req.user as users;
+    const user = req.user as { id: string };
     return this.openRegisterService.getOpenRegisterByUser(user.id, entityId);
   }
 
@@ -79,7 +79,7 @@ export class OpenRegisterController {
   ) {
     const user = req.user;
     return await this.openRegisterService.createOpenRegister(
-      user.sub,
+      user.id,
       createOpenRegister,
     );
   }

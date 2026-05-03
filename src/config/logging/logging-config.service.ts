@@ -5,6 +5,10 @@ import {
 } from 'nest-winston';
 import * as winston from 'winston';
 
+// winston-elasticsearch usa require ya que no tiene typings ESM completos
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { ElasticsearchTransport } = require('winston-elasticsearch');
+
 @Injectable()
 export class LoggingConfigService {
   private transports: any;
@@ -17,6 +21,38 @@ export class LoggingConfigService {
    * Private constructor to initialize logging transports and options.
    */
   private constructor() {
+    const esNode =
+      process.env.ELASTICSEARCH_NODE ?? 'http://localhost:9200';
+    const indexPrefix =
+      process.env.ELASTICSEARCH_INDEX_PREFIX ?? 'caja-logs';
+
+    const esTransport = new ElasticsearchTransport({
+      level: 'info',
+      indexPrefix,
+      indexSuffixPattern: 'YYYY.MM.DD',
+      clientOpts: {
+        node: esNode,
+        maxRetries: 3,
+        requestTimeout: 10000,
+      },
+      // Mapeo mínimo para que Kibana entienda el timestamp
+      transformer: (logData: any) => {
+        return {
+          '@timestamp': new Date().toISOString(),
+          severity: logData.level,
+          message: logData.message,
+          context: logData.meta?.context ?? '',
+          traceId: logData.meta?.traceId ?? '',
+          fields: logData.meta,
+        };
+      },
+    });
+
+    esTransport.on('error', (error: Error) => {
+      // Evitar que un error de ES derribe la app
+      console.error('Elasticsearch transport error:', error.message);
+    });
+
     this.transports = {
       console: new winston.transports.Console({
         level: 'debug',
@@ -29,35 +65,19 @@ export class LoggingConfigService {
         filename: 'errors.log',
         level: 'error',
       }),
-      http: new winston.transports.Http({
-        level: 'error',
-        format: winston.format.json(),
-      }),
-    };
-
-    this.options = {
-      // options (same as WinstonModule.forRoot() options)
-      levels: winston.config.npm.levels,
-      transports: [
-        this.transports.console,
-        this.transports.file,
-        this.transports.http,
-      ],
+      elasticsearch: esTransport,
     };
 
     this._logger = winston.createLogger({
-      // options (same as WinstonModule.forRoot() options)
       levels: winston.config.npm.levels,
       transports: [
         this.transports.console,
-        // this.transports.file
-        // this.transports.http
+        this.transports.elasticsearch,
       ],
     });
 
-    // production logs
     if (process.env.NODE_ENV === 'production') {
-      this._logger.add(this.transports.console);
+      this._logger.add(this.transports.file);
     }
   }
 
@@ -78,5 +98,13 @@ export class LoggingConfigService {
    */
   getLogger(): LoggerService {
     return WinstonModule.createLogger(this._logger);
+  }
+
+  /**
+   * Returns the raw winston logger for direct use with metadata (traceId, etc.).
+   * @returns {winston.Logger} The raw winston logger.
+   */
+  getRawLogger(): winston.Logger {
+    return this._logger;
   }
 }
