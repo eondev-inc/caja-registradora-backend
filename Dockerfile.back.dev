@@ -1,4 +1,4 @@
-FROM node:20-alpine3.18
+FROM node:lts-alpine3.22
 
 LABEL version="0.1.1"
 
@@ -16,7 +16,7 @@ RUN addgroup nestjs && adduser -S -G nestjs nestjs
 
 # Instalar dependencias globales
 RUN npm install -g @nestjs/cli
-RUN npm install -g pnpm
+RUN npm install -g pnpm@10
 
 # Establecer directorio de trabajo
 WORKDIR /app
