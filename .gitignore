@@ -59,3 +59,4 @@ node_modules
 .pnpm-store
 .codegraph/
 .github/*.md
+.atl/
