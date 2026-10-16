@@ -45,8 +45,7 @@ function typeOfMessage(data, isInfo, shortError, environment, origin) {
   } = data;
 
   let newOptionFetch, facts;
-  // // TODO: verificar funcion
-  // console.log('OPTION EN TEAMS LOG', optionFetch);
+  // TODO: verificar funcion
   const haveBody = haveBodyOptions(optionFetch);
   if (!isInfo && haveBody) {
     newOptionFetch = deleteBodyOfOptionsFetch(optionFetch);

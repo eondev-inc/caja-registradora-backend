@@ -8,7 +8,7 @@ import { PrismaService } from 'nestjs-prisma';
 
 @Injectable()
 export class ReadinessHealthIndicator extends HealthIndicator {
-  private prisma: PrismaService;
+  private readonly prisma: PrismaService;
 
   constructor() {
     super();

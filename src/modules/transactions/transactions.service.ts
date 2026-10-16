@@ -193,33 +193,6 @@ export class TransactionsService {
   }
 
   /**
-   * Lists transactions by center.
-   * First, it retrieves the open registers of the center, then lists the transactions associated with those open registers.
-   * @param branchCode - The branch code of the center.
-   * @returns A list of transactions associated with the center's open registers.
-   */
-  // async listTransactionsByCenter(branchCode: string) {
-  //   // First we need to get the open register of the center
-  //   const openRegister = await this.prismaService.open_register.findMany({
-  //     where: {
-  //       cashiers: {
-  //         users: {
-  //           branch_code: branchCode,
-  //         },
-  //       },
-  //     },
-  //   });
-
-  //   return await this.prismaService.transactions.findMany({
-  //     where: {
-  //       open_register_id: {
-  //         in: openRegister.map((register) => register.id),
-  //       },
-  //     },
-  //   });
-  // }
-
-  /**
    * Cancels a transaction given its ID.
    * Validates that the transaction is in COMPLETADO status before cancelling.
    * Also updates the associated invoice status to ANULADO.

@@ -20,12 +20,10 @@ export const paginate = (params: IPaginateParams) => {
     itemPerPage,
     currentPage: page,
   };
+  const previousPage = page <= meta.totalPage ? page - 1 : meta.totalPage;
   const links: Link = {
     next: page < meta.totalPage ? `?page=${page + 1}&limit=${limit}` : null,
-    previous:
-      page > 1
-        ? `?page=${page <= meta.totalPage ? page - 1 : meta.totalPage}&limit=${limit}`
-        : null,
+    previous: page > 1 ? `?page=${previousPage}&limit=${limit}` : null,
     current: `?page=${page}&limit=${limit}`,
   };
   return { data, meta, links };

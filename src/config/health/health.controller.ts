@@ -16,10 +16,10 @@ import { ReadinessHealthIndicator } from './indicators/readiness.indicator';
 @ApiTags('healthcheck')
 export class HealthController {
   constructor(
-    private health: HealthCheckService,
-    private livenessHealthIndicator: LivenessHealthIndicator,
-    private memoryHealthIndicator: MemoryHealthIndicator,
-    private readinessIndicator: ReadinessHealthIndicator,
+    private readonly health: HealthCheckService,
+    private readonly livenessHealthIndicator: LivenessHealthIndicator,
+    private readonly memoryHealthIndicator: MemoryHealthIndicator,
+    private readonly readinessIndicator: ReadinessHealthIndicator,
   ) {}
 
   @Public()

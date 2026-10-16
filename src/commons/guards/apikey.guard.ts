@@ -15,8 +15,8 @@ import { AppConfig } from '@/config/app/enums/app-config.enum';
 @Injectable()
 export class ApikeyGuard implements CanActivate {
   constructor(
-    private reflector: Reflector,
-    private appConfigService: AppConfigService,
+    private readonly reflector: Reflector,
+    private readonly appConfigService: AppConfigService,
   ) {}
 
   canActivate(
