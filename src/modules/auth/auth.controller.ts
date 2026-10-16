@@ -68,12 +68,13 @@ export class AuthController {
     @Cookies('refreshToken') refreshToken: string,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    const { accessToken } = await this.authService.validateRefreshToken(refreshToken);
+    const { accessToken, user } =
+      await this.authService.validateRefreshToken(refreshToken);
 
     // Rotar la cookie: extender lifetime con cada refresh exitoso
     res.setCookie('refreshToken', refreshToken, this.buildRefreshCookieOptions());
 
-    return { accessToken };
+    return { accessToken, user };
   }
 
   @Post('logout')
