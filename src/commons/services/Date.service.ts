@@ -5,9 +5,9 @@ import { AppConfig } from '@/config/app/enums/app-config.enum';
 
 @Injectable()
 export class DateService {
-  private timezone: string;
+  private readonly timezone: string;
 
-  constructor(private appConfigSerice: AppConfigService) {
+  constructor(private readonly appConfigSerice: AppConfigService) {
     this.timezone = this.appConfigSerice.get(AppConfig.APP_TIMEZONE);
   }
 

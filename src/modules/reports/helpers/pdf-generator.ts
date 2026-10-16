@@ -53,6 +53,9 @@ export async function generatePdf(options: PdfReportOptions): Promise<Buffer> {
     // --- Entity & date info ---
     doc.moveDown(0.2);
     const infoY = 100;
+    const generatedByText = options.generatedBy
+      ? `  |  Por: ${options.generatedBy}`
+      : '';
     doc
       .fillColor(TEXT_GRAY)
       .fontSize(8)
@@ -64,7 +67,7 @@ export async function generatePdf(options: PdfReportOptions): Promise<Buffer> {
         infoY + 12,
       )
       .text(
-        `Generado: ${new Date().toLocaleString('es-CL')}${options.generatedBy ? `  |  Por: ${options.generatedBy}` : ''}`,
+        `Generado: ${new Date().toLocaleString('es-CL')}${generatedByText}`,
         40,
         infoY + 24,
       );

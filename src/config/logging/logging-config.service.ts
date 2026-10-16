@@ -11,9 +11,9 @@ const { ElasticsearchTransport } = require('winston-elasticsearch');
 
 @Injectable()
 export class LoggingConfigService {
-  private transports: any;
+  private readonly transports: any;
   private readonly options: winston.LoggerOptions;
-  private _logger: winston.Logger;
+  private readonly _logger: winston.Logger;
 
   private static _instance: LoggingConfigService;
 

@@ -5,7 +5,7 @@ import { AuthService } from '../auth.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy, 'local') {
-  constructor(private authService: AuthService) {
+  constructor(private readonly authService: AuthService) {
     // Passport local espera 'username' por defecto — sobreescribimos al campo email
     super({ usernameField: 'email', passwordField: 'password' });
   }

@@ -2,7 +2,7 @@ import { Error } from './payload-http-exception.interface';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class PayloadHttpException extends HttpException {
-  private errorBody: any;
+  private readonly errorBody: any;
 
   constructor(error: Error, httpStatus?: HttpStatus) {
     const httpStatusCode = httpStatus || error.status || error.code || 500;

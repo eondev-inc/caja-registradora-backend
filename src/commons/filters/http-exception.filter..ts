@@ -23,7 +23,7 @@ import { HttpError } from './http-exception.interface';
 )
 export class HttpExceptionFilter extends BaseExceptionFilter {
   private readonly logger = LoggingConfigService.getInstance().getLogger();
-  async catch(
+  catch(
     exception:
       | HttpException
       | NotFoundException
@@ -32,7 +32,7 @@ export class HttpExceptionFilter extends BaseExceptionFilter {
       | BadRequestException
       | ConflictException,
     host: ArgumentsHost,
-  ): Promise<void> {
+  ): void {
     const httpContext = host.switchToHttp();
     const res = httpContext.getResponse<FastifyReply>();
     const req = httpContext.getRequest<FastifyRequest>();

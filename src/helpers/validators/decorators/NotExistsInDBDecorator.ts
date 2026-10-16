@@ -29,12 +29,14 @@ export class NotExistsInDBConstraint implements ValidatorConstraintInterface {
         throw new Error(`Unsupported table: ${table}`);
     }
 
-    const query =
-      field == 'id'
-        ? { id: value }
-        : isNumber(value)
-          ? { [field]: value }
-          : { [field]: { mode: 'insensitive', equals: value } };
+    let query;
+    if (field == 'id') {
+      query = { id: value };
+    } else if (isNumber(value)) {
+      query = { [field]: value };
+    } else {
+      query = { [field]: { mode: 'insensitive', equals: value } };
+    }
 
     return _table.findFirst({ where: query }).then((model) => {
       return model ? false : true;

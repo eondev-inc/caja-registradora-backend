@@ -10,9 +10,9 @@ import { AppConfig } from './interfaces/app-config.interface';
  */
 @Injectable()
 export class AppConfigService {
-  private appConfig: AppConfig;
+  private readonly appConfig: AppConfig;
 
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     this.appConfig = this.configService.get<AppConfig>('app');
   }
 
