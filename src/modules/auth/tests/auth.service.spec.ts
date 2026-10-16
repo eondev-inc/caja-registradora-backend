@@ -36,7 +36,7 @@ describe('AuthService', () => {
   const configMock = { get: jest.fn() };
 
   beforeEach(async () => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -90,6 +90,18 @@ describe('AuthService', () => {
         service.validateRefreshToken('refresh-token'),
       ).rejects.toThrow(UnauthorizedException);
       expect(prismaMock.users.findFirst).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('logoutUser', () => {
+    it('revokes the refresh token in Redis and the stored token in DB', async () => {
+      await service.logoutUser('user-1');
+
+      expect(redisMock.del).toHaveBeenCalledWith('caja:refresh:user-1');
+      expect(prismaMock.users_tokens.updateMany).toHaveBeenCalledWith({
+        where: { user_id: 'user-1' },
+        data: { is_revoked: true },
+      });
     });
   });
 });

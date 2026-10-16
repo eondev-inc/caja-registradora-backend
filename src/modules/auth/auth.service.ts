@@ -325,14 +325,11 @@ export class AuthService {
   }
 
   /**
-   * Cierra la sesión de un usuario.
+   * Cierra la sesión de un usuario autenticado.
    * Revoca el refresh token en Redis y marca el token en DB como revocado.
-   * @param refreshToken - Token de refresco activo del usuario.
+   * @param userId - ID del usuario autenticado (access token validado por el guard).
    */
-  async logoutUser(refreshToken: string) {
-    const decode = await this.jwtServivice.decode(refreshToken);
-    const userId = decode.sub;
-
+  async logoutUser(userId: string) {
     // Revocar en Redis
     await this.redisService.del(`${REFRESH_TOKEN_PREFIX}${userId}`);
 
