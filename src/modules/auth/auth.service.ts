@@ -179,7 +179,7 @@ export class AuthService {
    * Valida un token de refresco.
    * Verifica firma JWT y existencia en Redis (revocación).
    * @param refreshToken - Token de refresco a validar.
-   * @returns Un objeto con el nuevo accessToken.
+   * @returns Un objeto con el nuevo accessToken y los datos del usuario.
    * @throws UnauthorizedException - Si el token es inválido o fue revocado.
    */
   async validateRefreshToken(refreshToken: string) {
@@ -198,6 +198,8 @@ export class AuthService {
         throw new UnauthorizedException('Sesión expirada o revocada');
       }
 
+      const user = await this.getSessionUser(userId);
+
       const accessToken = this.jwtServivice.sign(
         { sub: userId },
         { expiresIn: '1h' },
@@ -205,11 +207,56 @@ export class AuthService {
 
       await this.saveAccessToken(userId, accessToken);
 
-      return { accessToken };
+      return { accessToken, user };
     } catch (error) {
       this.logger.error('Token de refresco inválido', error);
       throw new UnauthorizedException('Token de refresco inválido');
     }
+  }
+
+  /**
+   * Obtiene el usuario con sus roles y entidades para respuestas de sesión.
+   * No incluye la contraseña.
+   * @param userId - ID del usuario.
+   * @returns El usuario con roles y entidades.
+   * @throws UnauthorizedException - Si el usuario no existe.
+   */
+  private async getSessionUser(userId: string) {
+    const user = await this.prismaService.users.findFirst({
+      select: {
+        id: true,
+        email: true,
+        forenames: true,
+        surnames: true,
+        nid: true,
+        user_roles: {
+          select: {
+            roles: {
+              select: {
+                role_name: true,
+              },
+            },
+          },
+        },
+        entity_users: {
+          select: {
+            entities: {
+              select: {
+                id: true,
+                entity_name: true,
+              },
+            },
+          },
+        },
+      },
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException('Token de refresco inválido');
+    }
+
+    return user;
   }
 
   /**
@@ -278,14 +325,11 @@ export class AuthService {
   }
 
   /**
-   * Cierra la sesión de un usuario.
+   * Cierra la sesión de un usuario autenticado.
    * Revoca el refresh token en Redis y marca el token en DB como revocado.
-   * @param refreshToken - Token de refresco activo del usuario.
+   * @param userId - ID del usuario autenticado (access token validado por el guard).
    */
-  async logoutUser(refreshToken: string) {
-    const decode = await this.jwtServivice.decode(refreshToken);
-    const userId = decode.sub;
-
+  async logoutUser(userId: string) {
     // Revocar en Redis
     await this.redisService.del(`${REFRESH_TOKEN_PREFIX}${userId}`);
 

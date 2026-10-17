@@ -22,7 +22,7 @@ Compact guide for OpenCode agents working in this repo. Every line answers: "wou
   - `HttpExceptionFilter` — response shape `{statusCode, timestamp, method, path, message, error, trace_id}` (note: `trace_id` is a fresh uuid per error, **not** the interceptor's `X-Trace-Id`).
   - `ValidationPipe` with `whitelist: true`, `transform: true`, `enableImplicitConversion: true`.
   - `BigInt.prototype.toJSON` patched to stringify (so Prisma BigInts serialize as strings, not crash JSON).
-  - CORS allow-list: `APP_FRONT_END_URL` + `http://localhost:3000` + `http://127.0.0.1:3000` + `http://caja.local`. Preflight uses `204`. `Set-Cookie` is exposed.
+  - CORS allow-list: `APP_FRONT_END_URL` + `http://localhost:3000` + `http://127.0.0.1:3000` + `https://caja.io`. Preflight uses `204`. `Set-Cookie` is exposed.
   - URI versioning enabled (`/v1/...` is the prefix; not used in routes — controllers use plain paths under the prefix).
   - Cookie parser via `@fastify/cookie` with secret `'elSecretoDeLaAbuela'` (hard-coded — do not log this elsewhere).
 

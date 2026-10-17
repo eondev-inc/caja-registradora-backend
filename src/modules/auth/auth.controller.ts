@@ -68,25 +68,26 @@ export class AuthController {
     @Cookies('refreshToken') refreshToken: string,
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    const { accessToken } = await this.authService.validateRefreshToken(refreshToken);
+    const { accessToken, user } =
+      await this.authService.validateRefreshToken(refreshToken);
 
     // Rotar la cookie: extender lifetime con cada refresh exitoso
     res.setCookie('refreshToken', refreshToken, this.buildRefreshCookieOptions());
 
-    return { accessToken };
+    return { accessToken, user };
   }
 
   @Post('logout')
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   async logout(
-    @Req() req: FastifyRequest,
+    @Req() req: FastifyRequest & { user: { id: string } },
     @Res({ passthrough: true }) res: FastifyReply,
   ) {
-    const refreshToken = req.cookies?.refreshToken;
-
+    // La cookie de refresh nunca llega acá (su Path es /api/v1/auth/refresh):
+    // la revocación se resuelve con la identidad del access token validado.
     res.clearCookie('refreshToken', { path: this.refreshCookiePath });
 
-    return this.authService.logoutUser(refreshToken);
+    return this.authService.logoutUser(req.user.id);
   }
 }
